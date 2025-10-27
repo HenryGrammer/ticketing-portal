@@ -47,4 +47,20 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('deactive/{id}', 'DepartmentController@deactive');
         Route::post('active/{id}', 'DepartmentController@active');
     });
+
+    // Roles
+    Route::get('roles','RoleController@index');
+    Route::prefix('roles')->group(function() {
+        Route::post('store', 'RoleController@store');
+        Route::post('update/{id}', 'RoleController@update');
+        Route::post('deactive/{id}', 'RoleController@deactive');
+        Route::post('active/{id}', 'RoleController@active');
+    });
+
+    // Tickets
+    Route::get('tickets','TicketingController@index');
+    Route::prefix('tickets')->group(function() {
+        Route::post('store', 'TicketingController@store');
+        Route::post('update/{id}', 'TicketingController@update');
+    });
 });

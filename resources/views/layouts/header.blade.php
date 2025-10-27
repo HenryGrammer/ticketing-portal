@@ -70,37 +70,46 @@
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="active" href="{{ url('') }}"><i class="sidebar-item-icon fa fa-th-large"></i>
+                        <a class="@if(Request::is('home')) active @endif" href="{{ url('') }}"><i class="sidebar-item-icon fa fa-th-large"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
                     <li class="heading">MAIN MENU</li>
                     <li>
-                        <a href="{{ url('ticketing') }}">
+                        <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">
                             <i class="sidebar-item-icon fa fa-ticket"></i>
                             <span class="nav-label">Tickets</span>
                         </a>
-                        <a href="">
+                        <a href="" class="@if(Request::is('reports')) active @endif">
                             <i class="sidebar-item-icon fa fa-file"></i>
                             <span class="nav-label">Reports</span>
                         </a>
+                    </li>
+                    <li class="heading">SETTINGS</li>
+                    <li>
                         <li>
-                            <a href="javascript:;"><i class="sidebar-item-icon fa fa-cog"></i>
-                                <span class="nav-label">Settings</span><i class="fa fa-angle-left arrow"></i></a>
-                            <ul class="nav-2-level collapse">
-                                <li>
-                                    <a href="{{ url('users') }}">Users</a>
-                                </li>
-                                <li>
-                                    <a href="{{ url('departments') }}">Departments</a>
-                                </li>
-                                <li>
-                                    <a href="{{ url('companies') }}">Companies</a>
-                                </li>
-                                <li>
-                                    <a href="">Roles</a>
-                                </li>
-                            </ul>
+                            <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
+                                <i class="sidebar-item-icon fa fa-user"></i>
+                                Users
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
+                                <i class="sidebar-item-icon fa fa-building"></i>
+                                Companies
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
+                                <i class="sidebar-item-icon fa fa-sitemap"></i>
+                                Departments
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
+                                <i class="sidebar-item-icon fa fa-users"></i>
+                                Roles
+                            </a>
                         </li>
                     </li>
                 </ul>
