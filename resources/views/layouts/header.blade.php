@@ -11,12 +11,14 @@
     <link href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/themify-icons/css/themify-icons.css') }}" rel="stylesheet" />
     <!-- PLUGINS STYLES-->
-    <link href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css') }}" rel="stylesheet" />
+    {{-- <link href="{{ asset('assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css') }}" rel="stylesheet" /> --}}
     <!-- THEME STYLES-->
     <link href="{{ asset('assets/css/main.min.css') }}" rel="stylesheet" />
     <!-- PAGE LEVEL STYLES-->
     <link href="{{ asset('assets/vendors/DataTables/datatables.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/select2/dist/css/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/vendors/summernote/dist/summernote.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/vendors/bootstrap-markdown/css/bootstrap-markdown.min.css') }}" rel="stylesheet" />
 </head>
 
 <body class="fixed-navbar">
@@ -76,10 +78,24 @@
                     </li>
                     <li class="heading">MAIN MENU</li>
                     <li>
-                        <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">
+                        <a href="">
                             <i class="sidebar-item-icon fa fa-ticket"></i>
-                            <span class="nav-label">Tickets</span>
+                                <span class="nav-label">Tickets</span><i class="fa fa-angle-left arrow">
+                            </i>
                         </a>
+                        <ul class="nav-2-level collapse">
+                            <li>
+                                <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">Create ticket</a>
+                            </li>
+                            <li>
+                                <a href="">Assigned to me</a>
+                            </li>
+                            <li>
+                                <a href="">List of tickets</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
                         <a href="" class="@if(Request::is('reports')) active @endif">
                             <i class="sidebar-item-icon fa fa-file"></i>
                             <span class="nav-label">Reports</span>
@@ -87,30 +103,28 @@
                     </li>
                     <li class="heading">SETTINGS</li>
                     <li>
-                        <li>
-                            <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
-                                <i class="sidebar-item-icon fa fa-user"></i>
-                                Users
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
-                                <i class="sidebar-item-icon fa fa-building"></i>
-                                Companies
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
-                                <i class="sidebar-item-icon fa fa-sitemap"></i>
-                                Departments
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
-                                <i class="sidebar-item-icon fa fa-users"></i>
-                                Roles
-                            </a>
-                        </li>
+                        <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
+                            <i class="sidebar-item-icon fa fa-user"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
+                            <i class="sidebar-item-icon fa fa-building"></i>
+                            Companies
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
+                            <i class="sidebar-item-icon fa fa-sitemap"></i>
+                            Departments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
+                            <i class="sidebar-item-icon fa fa-users"></i>
+                            Roles
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -150,6 +164,8 @@
     <script src="{{ asset('assets/js/app.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/DataTables/datatables.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/select2/dist/js/select2.full.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/vendors/summernote/dist/summernote.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/vendors/bootstrap-markdown/js/bootstrap-markdown.js') }}" type="text/javascript"></script>
     <!-- PAGE LEVEL SCRIPTS-->
     {{-- <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script> --}}
     @yield('js')

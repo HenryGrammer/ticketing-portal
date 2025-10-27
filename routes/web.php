@@ -58,9 +58,10 @@ Route::group(['middleware' => 'auth'], function() {
     });
 
     // Tickets
-    Route::get('tickets','TicketingController@index');
+    Route::get('tickets','TicketController@index');
     Route::prefix('tickets')->group(function() {
-        Route::post('store', 'TicketingController@store');
-        Route::post('update/{id}', 'TicketingController@update');
+        Route::post('store', 'TicketController@store');
+        Route::post('update/{id}', 'TicketController@update');
+        Route::post('upload_image','TicketController@uploadImage');
     });
 });

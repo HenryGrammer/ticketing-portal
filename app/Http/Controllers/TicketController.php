@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TicketRequest;
+use App\Ticket;
+use App\Ticketing;
 use Illuminate\Http\Request;
 
-class TicketingController extends Controller
+class TicketController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,7 +16,13 @@ class TicketingController extends Controller
      */
     public function index()
     {
-        //
+        $tickets = Ticket::with('assigned','created_by','department')->get();
+        
+        return view('tickets.index', 
+            array(
+                'tickets' => $tickets
+            )
+        );
     }
 
     /**
@@ -32,9 +41,20 @@ class TicketingController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TicketRequest $request)
     {
-        //
+        // dd($request->all());
+        $tickets = new Ticket();
+        $tickets->viber_number = $request->viber_number;
+        $tickets->department_id = $request->department;
+        $tickets->subject = $request->title;
+        $tickets->task = $request->task;
+        $tickets->status = 'Open';
+        $tickets->created_by = auth()->user()->id;
+        $tickets->save();
+
+        toastr()->success('Successfully Saved');
+        return back();
     }
 
     /**
@@ -80,5 +100,17 @@ class TicketingController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function uploadImage(Request $request)
+    {
+        if ($request->hasFile('file'))
+        {
+            $file = $request->file('file');
+            $filename = time().'-'.$file->getClientOriginalName();
+            $url = $file->move(public_path('summernote'),$filename);
+
+            return $url;
+        }
     }
 }
