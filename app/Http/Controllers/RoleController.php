@@ -84,7 +84,13 @@ class RoleController extends Controller
      */
     public function update(RoleRequest $request, $id)
     {
-        //
+        $roles = Role::findOrFail($id);
+        $roles->name = $request->name;
+        $roles->code = $request->code;
+        $roles->save();
+
+        toastr()->success('Successfully Updated');
+        return back();
     }
 
     /**
@@ -96,5 +102,25 @@ class RoleController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function deactive($id)
+    {
+        $roles = Role::findOrFail($id);
+        $roles->status = 'Inactive';
+        $roles->save();
+
+        toastr()->success('Successfully Deactivated');
+        return back();
+    }
+
+    public function active($id)
+    {
+        $roles = Role::findOrFail($id);
+        $roles->status = 'Active';
+        $roles->save();
+
+        toastr()->success('Successfully Activated');
+        return back();
     }
 }

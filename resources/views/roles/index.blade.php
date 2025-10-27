@@ -57,7 +57,7 @@
                                         <i class="fa fa-edit"></i>
                                     </button>
                                     @if($role->status == "Active")
-                                    <form method="POST" action="{{ url('companies/deactive/'.$role->id) }}" style="display: inline-block;">
+                                    <form method="POST" action="{{ url('roles/deactive/'.$role->id) }}" style="display: inline-block;">
                                         @csrf
 
                                         <button type="submit" class="btn btn-danger">
@@ -65,7 +65,7 @@
                                         </button>
                                     </form>
                                     @else
-                                    <form method="POST" action="{{ url('companies/active/'.$role->id) }}" style="display: inline-block;">
+                                    <form method="POST" action="{{ url('roles/active/'.$role->id) }}" style="display: inline-block;">
                                         @csrf
 
                                         <button type="submit" class="btn btn-success">
@@ -88,7 +88,7 @@
                                 </td>
                             </tr>
 
-                            {{-- @include('companies.edit') --}}
+                            @include('roles.edit')
                         @endforeach
                     </tbody>
                 </table>
