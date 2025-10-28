@@ -91,7 +91,7 @@
                                 <a href="">Assigned to me</a>
                             </li>
                             <li>
-                                <a href="">List of tickets</a>
+                                <a href="{{ url('tickets/list') }}">List of tickets</a>
                             </li>
                         </ul>
                     </li>

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Http\Requests\TicketRequest;
 use App\Ticket;
 use App\Ticketing;
+use App\User;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
@@ -16,7 +18,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $tickets = Ticket::with('assigned','created_by','department')->get();
+        $tickets = Ticket::with('assigned','created_by','department')->where('created_by', auth()->user()->id)->get();
         
         return view('tickets.index', 
             array(
@@ -88,7 +90,20 @@ class TicketController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'assigned_to' => ['required', 'exists:users,id'],
+            'priority' => ['required'],
+            'category_id' => ['required', 'exists:categories,id']
+        ]);
+
+        $tickets = Ticket::findOrFail($id);
+        $tickets->assigned_to = $request->assigned_to;
+        $tickets->priority = $request->priority;
+        $tickets->category_id = $request->category;
+        $tickets->save();
+
+        toastr()->success('Successfully Updated');
+        return back();
     }
 
     /**
@@ -112,5 +127,21 @@ class TicketController extends Controller
 
             return $url;
         }
+    }
+
+    public function list(Request $request)
+    {
+        $tickets = Ticket::with('assigned','created_by','department')->get();
+
+        $it_personnels = User::where('department_id', 1)->where('status','Active')->get();
+        $categories = Category::get();
+
+        return view('tickets.list', 
+            array(
+                'tickets' => $tickets,
+                'it_personnels' => $it_personnels,
+                'categories' => $categories
+            )
+        );
     }
 }

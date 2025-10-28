@@ -63,5 +63,6 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('store', 'TicketController@store');
         Route::post('update/{id}', 'TicketController@update');
         Route::post('upload_image','TicketController@uploadImage');
+        Route::get('list', 'TicketController@list');
     });
 });
