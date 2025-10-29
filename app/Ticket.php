@@ -22,4 +22,8 @@ class Ticket extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function ticketing_thread()
+    {
+        return $this->hasMany(TicketingThread::class);
+    }
 }

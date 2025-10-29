@@ -8,10 +8,12 @@
                 <div style="display: flex; flex-direction:row; justify-content:space-between;">
                     <h6 class="card-title">View ticket details</h6>
 
-                    <form method="post" action="{{ url('tickets/acknowledge') }}">
+                    <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}">
                         @csrf
 
-                        <button type="button" class="btn btn-success">
+                        <input type="hidden" name="ticketing_type" value="Acknowledgement">
+
+                        <button type="submit" class="btn btn-success">
                             Acknowledge
                         </button>
                     </form>
@@ -64,6 +66,35 @@
                     <div class="ibox-head">{{ $ticket->subject }}</div>
                     <div class="ibox-body">
                         {!! nl2br(e(strip_tags($ticket->task))) !!}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Comments</div>
+                            </div>
+                            <div class="ibox-body">
+                                <ul class="media-list media-list-divider m-0">
+                                    @if (count($ticket->ticketing_thread) > 0)
+                                        @foreach ($ticket->ticketing_thread as $thread)
+                                        <li class="media">
+                                            <a class="media-img" href="javascript:;">
+                                                <img class="img-circle" src="{{ asset('assets/img/admin-avatar.png') }}" width="40">
+                                            </a>
+                                            <div class="media-body">
+                                                <div class="media-heading">{{ $thread->user->name }} <small class="float-right text-muted">{{ $thread->created_at->diffForHumans() }}</small></div>
+                                                <div class="font-13">{!! nl2br(e($thread->comment)) !!}</div>
+                                            </div>
+                                        </li>
+                                        @endforeach
+                                    @else
+                                        <li>No comments...</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

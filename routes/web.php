@@ -60,12 +60,14 @@ Route::group(['middleware' => 'auth'], function() {
     // Tickets
     Route::get('tickets','TicketController@index');
     Route::prefix('tickets')->group(function() {
-        Route::post('store', 'TicketController@store');
-        Route::post('update/{id}', 'TicketController@update');
-        Route::post('upload_image','TicketController@uploadImage');
         Route::get('list', 'TicketController@list');
         Route::get('assign', 'TicketController@assign');
         Route::get('details/{id}','TicketController@show');
+
+        Route::post('store', 'TicketController@store');
+        Route::post('update/{id}', 'TicketController@update');
+        Route::post('upload_image','TicketController@uploadImage');
+        Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
     });
 
     // Settings

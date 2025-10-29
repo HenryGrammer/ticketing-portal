@@ -6,6 +6,9 @@ use App\Category;
 use App\Http\Requests\TicketRequest;
 use App\Ticket;
 use App\Ticketing;
+use App\TicketingComment;
+use App\TicketingThread;
+use App\TicketingType;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -67,7 +70,7 @@ class TicketController extends Controller
      */
     public function show($id)
     {
-        $ticket = Ticket::with('department','assignTo','createdBy')->findOrFail($id);
+        $ticket = Ticket::with('department','assignTo','createdBy', 'ticketing_thread.user')->findOrFail($id);
 
         return view('tickets.view',
             array(
@@ -155,12 +158,29 @@ class TicketController extends Controller
 
     public function assign(Request $request)
     {
-        $tickets = Ticket::with('assignTo','created_by','department')->where('assigned_to', auth()->user()->id)->get();
+        $tickets = Ticket::with('assignTo','createdBy','department')->where('assigned_to', auth()->user()->id)->get();
 
         return view('tickets.assign', 
             array(
                 'tickets' => $tickets
             )
         );
+    }
+
+    public function acknowledgement(Request $request,$id)
+    {
+        // dd($request->all());
+        $ticket = Ticket::findOrFail($id);
+        $ticketing_type = TicketingType::where('name', $request->ticketing_type)->first();
+        $ticketing_comment = TicketingComment::where('ticketing_type_id', $ticketing_type->id)->first();
+        
+        $thread = new TicketingThread;
+        $thread->ticket_id = $ticket->id;
+        $thread->comment = $ticketing_comment->information;
+        $thread->user_id = auth()->user()->id;
+        $thread->save();
+
+        toastr()->success('Successfully Saved');
+        return back();
     }
 }
