@@ -6,7 +6,7 @@
         <div class="ibox bg-info color-white widget-stat">
             <div class="ibox-body">
                 <h2 class="m-b-5 font-strong">0</h2>
-                <div class="m-b-5">TICKETS</div>
+                <div class="m-b-5">TICKETS COMMENTS</div>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
         <div class="ibox bg-success color-white widget-stat">
             <div class="ibox-body">
                 <h2 class="m-b-5 font-strong">0</h2>
-                <div class="m-b-5">OPEN</div>
+                <div class="m-b-5">ACTIVE</div>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="ibox bg-danger color-white widget-stat">
             <div class="ibox-body">
                 <h2 class="m-b-5 font-strong">0</h2>
-                <div class="m-b-5">CLOSE</div>
+                <div class="m-b-5">INACTIVE</div>
             </div>
         </div>
     </div>
@@ -30,40 +30,34 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h5>List of Tickets</h5>
+                <h5>Ticketing Comments</h5>
             </div>
             <div class="card-body">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
+                    <i class="fa fa-plus"></i>
+                    Add ticketing comment
+                </button>
+
                 @include('components.error')
 
                 <table class="table table-bordered table-hover table-sm tables">
                     <thead>
                         <tr>
                             <th>Action</th>
-                            <th>Ticket #</th>
-                            <th>Date Created</th>
-                            <th>Subject</th>
-                            <th>Priority</th>
-                            <th>Assigned To</th>
+                            <th>Type</th>
+                            <th>Information</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($tickets as $key=>$ticket)
+                        @foreach ($ticketing_comments as $key=>$comment)
                             <tr>
                                 <td>
-                                    @if($ticket->status != "Closed")
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $ticket->id }}">
+                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $comment->id }}">
                                         <i class="fa fa-edit"></i>
                                     </button>
-                                    @endif
-                                    <a href="{{ url('tickets/details/'.$ticket->id) }}" class="btn btn-primary">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    {{-- <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $role->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($role->status == "Active")
-                                    <form method="POST" action="{{ url('companies/deactive/'.$role->id) }}" style="display: inline-block;">
+                                    @if($comment->status == "Active")
+                                    <form method="POST" action="{{ url('ticketing_comments/deactive/'.$comment->id) }}" style="display: inline-block;">
                                         @csrf
 
                                         <button type="submit" class="btn btn-danger">
@@ -71,39 +65,30 @@
                                         </button>
                                     </form>
                                     @else
-                                    <form method="POST" action="{{ url('companies/active/'.$role->id) }}" style="display: inline-block;">
+                                    <form method="POST" action="{{ url('ticketing_comments/active/'.$comment->id) }}" style="display: inline-block;">
                                         @csrf
 
                                         <button type="submit" class="btn btn-success">
                                             <i class="fa fa-check"></i>
                                         </button>
                                     </form>
-                                    @endif --}}
-                                </td>
-                                <td>{{ str_pad($ticket->id, '7', 0, STR_PAD_LEFT) }}</td>
-                                <td>{{ date('M d, Y', strtotime($ticket->created_at)) }}</td>
-                                <td>{{ $ticket->subject }}</td>
-                                <td>{{ $ticket->priority }}</td>
-                                <td>
-                                    @if($ticket->assigned_to)
-                                        {{ $ticket->assignTo->name }}
-                                    @else
-                                        No IT assigned yet
                                     @endif
                                 </td>
+                                <td>{{ $comment->ticketing_type->name }}</td>
+                                <td>{!! nl2br(e($comment->information)) !!}</td>
                                 <td>
-                                    @if($ticket->status == "Open")
+                                    @if($comment->status == "Active")
                                     <span class="badge badge-success">
-                                    @elseif($ticket->status == "Closed")
+                                    @elseif($comment->status == "Inactive")
                                     <span class="badge badge-danger">
                                     @endif
 
-                                    {{ $ticket->status }}
+                                    {{ $comment->status }}
                                     </span>
                                 </td>
                             </tr>
 
-                            @include('tickets.edit')
+                            @include('ticketing_comments.edit')
                         @endforeach
                     </tbody>
                 </table>
@@ -112,7 +97,7 @@
     </div>
 </div>
 
-@include('tickets.new')
+@include('ticketing_comments.new')
 @endsection
 
 @section('js')

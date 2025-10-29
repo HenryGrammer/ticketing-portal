@@ -64,5 +64,17 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('update/{id}', 'TicketController@update');
         Route::post('upload_image','TicketController@uploadImage');
         Route::get('list', 'TicketController@list');
+        Route::get('assign', 'TicketController@assign');
+        Route::get('details/{id}','TicketController@show');
+    });
+
+    // Settings
+    // Ticketing Comments
+    Route::get('ticketing_comments','TicketingCommentController@index');
+    Route::prefix('ticketing_comments')->group(function() {
+        Route::post('store','TicketingCommentController@store');
+        Route::post('update/{id}','TicketingCommentController@update');
+        Route::post('deactive/{id}', 'TicketingCommentController@deactive');
+        Route::post('active/{id}', 'TicketingCommentController@active');
     });
 });

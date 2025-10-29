@@ -51,7 +51,10 @@
                             {{-- <a class="dropdown-item" href="profile.html"><i class="fa fa-cog"></i>Settings</a> --}}
                             {{-- <a class="dropdown-item" href="javascript:;"><i class="fa fa-support"></i>Support</a> --}}
                             {{-- <li class="dropdown-divider"></li> --}}
-                            <a class="dropdown-item" href="login.html"><i class="fa fa-power-off"></i>Logout</a>
+                            <a class="dropdown-item" onclick="logout();"><i class="fa fa-power-off"></i>Logout</a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                {{ csrf_field() }}
+                            </form>
                         </ul>
                     </li>
                 </ul>
@@ -72,7 +75,8 @@
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="@if(Request::is('home')) active @endif" href="{{ url('') }}"><i class="sidebar-item-icon fa fa-th-large"></i>
+                        <a class="@if(Request::is('home')) active @endif" href="{{ url('') }}">
+                            <i class="sidebar-item-icon fa fa-th-large"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
@@ -88,7 +92,7 @@
                                 <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">Create ticket</a>
                             </li>
                             <li>
-                                <a href="">Assigned to me</a>
+                                <a href="{{ url('tickets/assign') }}">Assigned to me</a>
                             </li>
                             <li>
                                 <a href="{{ url('tickets/list') }}">List of tickets</a>
@@ -105,26 +109,38 @@
                     <li>
                         <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
                             <i class="sidebar-item-icon fa fa-user"></i>
-                            Users
+                            <span class="nav-label">Users</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
                             <i class="sidebar-item-icon fa fa-building"></i>
-                            Companies
+                            <span class="nav-label">Companies</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
                             <i class="sidebar-item-icon fa fa-sitemap"></i>
-                            Departments
+                            <span class="nav-label">Departments</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
                             <i class="sidebar-item-icon fa fa-users"></i>
-                            Roles
+                            <span class="nav-label">Roles</span>
                         </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <i class="sidebar-item-icon fa fa-cog"></i>
+                                <span class="nav-label">Ticketing Settings</span><i class="fa fa-angle-left arrow">
+                            </i>
+                        </a>
+                        <ul class="nav-2-level collapse">
+                            <li>
+                                <a href="{{ url('ticketing_comments') }}" class="@if(Request::is('ticketing_comments')) active @endif">Ticketing Comments</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -168,6 +184,12 @@
     <script src="{{ asset('assets/vendors/bootstrap-markdown/js/bootstrap-markdown.js') }}" type="text/javascript"></script>
     <!-- PAGE LEVEL SCRIPTS-->
     {{-- <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script> --}}
+    <script>
+        function logout() {
+            event.preventDefault();
+            document.getElementById('logout-form').submit();
+        }
+    </script>
     @yield('js')
 </body>
 

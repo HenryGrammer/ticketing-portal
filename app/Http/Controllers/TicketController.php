@@ -18,7 +18,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $tickets = Ticket::with('assigned','created_by','department')->where('created_by', auth()->user()->id)->get();
+        $tickets = Ticket::with('assignTo','createdBy','department')->where('created_by', auth()->user()->id)->get();
         
         return view('tickets.index', 
             array(
@@ -67,7 +67,13 @@ class TicketController extends Controller
      */
     public function show($id)
     {
-        //
+        $ticket = Ticket::with('department','assignTo','createdBy')->findOrFail($id);
+
+        return view('tickets.view',
+            array(
+                'ticket' => $ticket
+            )
+        );
     }
 
     /**
@@ -93,13 +99,15 @@ class TicketController extends Controller
         $request->validate([
             'assigned_to' => ['required', 'exists:users,id'],
             'priority' => ['required'],
-            'category_id' => ['required', 'exists:categories,id']
+            'category' => ['required', 'exists:categories,id']
         ]);
 
         $tickets = Ticket::findOrFail($id);
         $tickets->assigned_to = $request->assigned_to;
         $tickets->priority = $request->priority;
         $tickets->category_id = $request->category;
+        $tickets->date_assign = date('Y-m-d');
+        $tickets->assign_by = auth()->user()->id;
         $tickets->save();
 
         toastr()->success('Successfully Updated');
@@ -131,7 +139,7 @@ class TicketController extends Controller
 
     public function list(Request $request)
     {
-        $tickets = Ticket::with('assigned','created_by','department')->get();
+        $tickets = Ticket::with('assignTo','createdBy','department')->get();
 
         $it_personnels = User::where('department_id', 1)->where('status','Active')->get();
         $categories = Category::get();
@@ -141,6 +149,17 @@ class TicketController extends Controller
                 'tickets' => $tickets,
                 'it_personnels' => $it_personnels,
                 'categories' => $categories
+            )
+        );
+    }
+
+    public function assign(Request $request)
+    {
+        $tickets = Ticket::with('assignTo','created_by','department')->where('assigned_to', auth()->user()->id)->get();
+
+        return view('tickets.assign', 
+            array(
+                'tickets' => $tickets
             )
         );
     }

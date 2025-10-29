@@ -43,7 +43,7 @@
                 <table class="table table-bordered table-hover table-sm tables">
                     <thead>
                         <tr>
-                            <th>Action</th>
+                            {{-- <th>Action</th> --}}
                             <th>Ticket #</th>
                             <th>Date Created</th>
                             <th>Subject</th>
@@ -55,35 +55,15 @@
                     <tbody>
                         @foreach ($tickets as $key=>$ticket)
                             <tr>
-                                <td>
-                                    {{-- <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $role->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($role->status == "Active")
-                                    <form method="POST" action="{{ url('companies/deactive/'.$role->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
-                                        </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('companies/active/'.$role->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif --}}
-                                </td>
-                                <td>{{ str_pad($key+1, '7', 0, STR_PAD_LEFT) }}</td>
+                                {{-- <td>
+                                </td> --}}
+                                <td>{{ str_pad($ticket->id, '7', 0, STR_PAD_LEFT) }}</td>
                                 <td>{{ date('M d, Y', strtotime($ticket->created_at)) }}</td>
                                 <td>{{ $ticket->subject }}</td>
                                 <td>{{ $ticket->priority }}</td>
                                 <td>
                                     @if($ticket->assigned_to)
-                                        {{ $ticket->assigned->name }}
+                                        {{ $ticket->assignTo->name }}
                                     @else
                                         No IT assigned yet
                                     @endif

@@ -30,7 +30,7 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h5>List of Tickets</h5>
+                <h5>Assign to me</h5>
             </div>
             <div class="card-body">
                 @include('components.error')
@@ -51,11 +51,6 @@
                         @foreach ($tickets as $key=>$ticket)
                             <tr>
                                 <td>
-                                    @if($ticket->status != "Closed")
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $ticket->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @endif
                                     <a href="{{ url('tickets/details/'.$ticket->id) }}" class="btn btn-primary">
                                         <i class="fa fa-eye"></i>
                                     </a>
@@ -102,8 +97,6 @@
                                     </span>
                                 </td>
                             </tr>
-
-                            @include('tickets.edit')
                         @endforeach
                     </tbody>
                 </table>
@@ -112,7 +105,6 @@
     </div>
 </div>
 
-@include('tickets.new')
 @endsection
 
 @section('js')
