@@ -77,4 +77,13 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('deactive/{id}', 'TicketingCommentController@deactive');
         Route::post('active/{id}', 'TicketingCommentController@active');
     });
+
+    // Ticketing Comments
+    Route::get('ticketing_types','TicketingTypeController@index');
+    Route::prefix('ticketing_types')->group(function() {
+        Route::post('store','TicketingTypeController@store');
+        Route::post('update/{id}','TicketingTypeController@update');
+        Route::post('deactive/{id}', 'TicketingTypeController@deactive');
+        Route::post('active/{id}', 'TicketingTypeController@active');
+    });
 });

@@ -140,6 +140,9 @@
                             <li>
                                 <a href="{{ url('ticketing_comments') }}" class="@if(Request::is('ticketing_comments')) active @endif">Ticketing Comments</a>
                             </li>
+                            <li>
+                                <a href="{{ url('ticketing_types') }}" class="@if(Request::is('ticketing_types')) active @endif">Ticketing Types</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
