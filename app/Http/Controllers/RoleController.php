@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AccessModule;
 use App\Http\Requests\RoleRequest;
 use App\Role;
 use Illuminate\Http\Request;
@@ -61,7 +62,13 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        return view('roles.access',
+            array(
+                'role' => $role
+            )
+        );
     }
 
     /**
@@ -121,6 +128,20 @@ class RoleController extends Controller
         $roles->save();
 
         toastr()->success('Successfully Activated');
+        return back();
+    }
+
+    public function storeAccess(Request $request)
+    {
+        foreach($request->permissions as $permission)
+        {
+            $access = new AccessModule;
+            $access->role_id = $request->role_id;
+            $access->permissions = $permission;
+            $access->save();
+        }
+
+        toastr()->success('Successfully Saved');
         return back();
     }
 }

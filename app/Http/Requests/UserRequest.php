@@ -27,8 +27,9 @@ class UserRequest extends FormRequest
         return [
             'company' => ['required', 'exists:companies,id'],
             'department' => ['required', 'exists:departments,id'],
-            'name' => ['required', 'alpha'],
+            'name' => ['required', 'regex:/^[\pL\s\-]+$/u', 'sometimes'],
             'email' => ['required', 'email', Rule::unique('users','email')->ignore($this->id)],
+            'role' => ['required', 'exists:roles,id']
         ];
     }
 }

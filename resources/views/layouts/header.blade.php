@@ -71,7 +71,7 @@
                         <img src="{{ url('assets/img/admin-avatar.png') }}" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">{{ auth()->user()->name }}</div><small>{{ auth()->user()->role }}</small>
+                        <div class="font-strong">{{ auth()->user()->name }}</div><small>{{ auth()->user()->role->name }}</small>
                     </div>
                 </div>
                 <ul class="side-menu metismenu">

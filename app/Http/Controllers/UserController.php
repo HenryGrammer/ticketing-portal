@@ -6,6 +6,7 @@ use App\Company;
 use App\Department;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRequest;
+use App\Role;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -22,13 +23,15 @@ class UserController extends Controller
 
         $companies = Company::where('status', 'Active')->get();
         $departments = Department::where('status', 'Active')->get();
+        $roles = Role::where('status','Active')->get();
 
         return view(
             'users.index',
             array(
                 'users' => $users,
                 'companies' => $companies,
-                'departments' => $departments
+                'departments' => $departments,
+                'roles' => $roles
             )
         );
     }
@@ -60,6 +63,7 @@ class UserController extends Controller
         $user->role = $request->roles;
         $user->password = bcrypt('wgroup123');
         $user->status = 'Active';
+        $user->role_id = $request->role;
         $user->save();
 
         toastr()->success('Successfully Saved');
@@ -102,7 +106,7 @@ class UserController extends Controller
         $user->department_id = $request->department;
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->role = $request->roles;
+        $user->role_id = $request->role;
         $user->save();
 
         toastr()->success('Successfully Updated');

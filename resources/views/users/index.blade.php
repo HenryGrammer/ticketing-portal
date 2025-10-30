@@ -88,7 +88,7 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->company->name }}</td>
                             <td>{{ $user->department->name }}</td>
-                            <td></td>
+                            <td>{{ $user->role->name }}</td>
                             <td>
                                 @if($user->status == "Active")
                                 <span class="badge badge-success">

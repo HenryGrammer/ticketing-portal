@@ -41,13 +41,11 @@
                         </div>
                         <div class="col-md-12">
                             Roles :
-                            <select data-placeholder="Select roles" name="roles" class="select2 form-control"
-                                style="width: 100%;">
+                            <select data-placeholder="Select roles" name="role" class="select2 form-control" style="width: 100%;">
                                 <option value=""></option>
-                                {{-- @foreach ($departments as $department)
-                                <option value="{{ $department->id }}" @if(old('department')==$department->id) selected @endif>{{ $department->code .' - '.
-                                    $department->name }}</option>
-                                @endforeach --}}
+                                @foreach ($roles as $role)
+                                <option value="{{ $role->id }}" @if(old('role')==$role->id) selected @endif>{{ $role->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

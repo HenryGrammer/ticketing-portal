@@ -11,6 +11,8 @@
 |
 */
 
+use App\Role;
+
 Route::get('/', function () {
     return redirect('login');
 });
@@ -55,6 +57,9 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('update/{id}', 'RoleController@update');
         Route::post('deactive/{id}', 'RoleController@deactive');
         Route::post('active/{id}', 'RoleController@active');
+        Route::post('store_access','RoleController@storeAccess');
+    
+        Route::get('access_module/{id}','RoleController@show');
     });
 
     // Tickets
@@ -83,7 +88,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('active/{id}', 'TicketingCommentController@active');
     });
 
-    // Ticketing Comments
+    // Ticketing Types
     Route::get('ticketing_types','TicketingTypeController@index');
     Route::prefix('ticketing_types')->group(function() {
         Route::post('store','TicketingTypeController@store');
