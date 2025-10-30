@@ -107,12 +107,14 @@
                         </a>
                     </li>
                     <li class="heading">SETTINGS</li>
+                    @can('view', App\User::class)
                     <li>
                         <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
                             <i class="sidebar-item-icon fa fa-user"></i>
                             <span class="nav-label">Users</span>
                         </a>
                     </li>
+                    @endcan
                     @can('view', App\Company::class)
                     <li>
                         <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
@@ -121,18 +123,23 @@
                         </a>
                     </li>
                     @endcan
+                    @can('view', App\Department::class)
                     <li>
                         <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
                             <i class="sidebar-item-icon fa fa-sitemap"></i>
                             <span class="nav-label">Departments</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('view', App\Role::class)
                     <li>
                         <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
                             <i class="sidebar-item-icon fa fa-users"></i>
                             <span class="nav-label">Roles</span>
                         </a>
                     </li>
+                    @endcan
+                    @if((auth()->user()->can('view', App\TicketingComment::class)) || (auth()->user()->can('view', App\TicketingComment::class)))
                     <li>
                         <a href="">
                             <i class="sidebar-item-icon fa fa-cog"></i>
@@ -140,14 +147,19 @@
                             </i>
                         </a>
                         <ul class="nav-2-level collapse">
+                            @can('view', App\TicketingComment::class)
                             <li>
                                 <a href="{{ url('ticketing_comments') }}" class="@if(Request::is('ticketing_comments')) active @endif">Ticketing Comments</a>
                             </li>
+                            @endcan
+                            @can('view', App\TicketingType::class)
                             <li>
                                 <a href="{{ url('ticketing_types') }}" class="@if(Request::is('ticketing_types')) active @endif">Ticketing Types</a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
+                    @endif
                 </ul>
             </div>
         </nav>

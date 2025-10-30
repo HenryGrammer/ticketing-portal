@@ -133,6 +133,7 @@ class RoleController extends Controller
 
     public function storeAccess(Request $request)
     {
+        $access = AccessModule::where('role_id', $request->role_id)->delete();
         foreach($request->permissions as $permission)
         {
             $access = new AccessModule;

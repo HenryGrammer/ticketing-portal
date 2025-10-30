@@ -33,10 +33,12 @@
                 <h5>Ticketing Comments</h5>
             </div>
             <div class="card-body">
+                @can('create', App\TicketingComment::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add ticketing comment
                 </button>
+                @endcan
 
                 @include('components.error')
 
@@ -53,26 +55,28 @@
                         @foreach ($ticketing_comments as $key=>$comment)
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $comment->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($comment->status == "Active")
-                                    <form method="POST" action="{{ url('ticketing_comments/deactive/'.$comment->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
+                                    @can('update', App\TicketingComment::class)
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $comment->id }}">
+                                            <i class="fa fa-edit"></i>
                                         </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('ticketing_comments/active/'.$comment->id) }}" style="display: inline-block;">
-                                        @csrf
+                                        @if($comment->status == "Active")
+                                        <form method="POST" action="{{ url('ticketing_comments/deactive/'.$comment->id) }}" style="display: inline-block;">
+                                            @csrf
 
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-ban"></i>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <form method="POST" action="{{ url('ticketing_comments/active/'.$comment->id) }}" style="display: inline-block;">
+                                            @csrf
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    @endcan
                                 </td>
                                 <td>{{ $comment->ticketing_type->name }}</td>
                                 <td>{!! nl2br(e($comment->information)) !!}</td>

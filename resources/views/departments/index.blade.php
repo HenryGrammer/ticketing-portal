@@ -33,10 +33,12 @@
                 <h5>Departments</h5>
             </div>
             <div class="card-body">
+                @can('create', App\Department::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add department
                 </button>
+                @endcan
 
                 @include('components.error')
 
@@ -55,26 +57,28 @@
                         @foreach ($departments as $department)
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $department->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($department->status == "Active")
-                                    <form method="POST" action="{{ url('departments/deactive/'.$department->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
+                                    @can('edit', App\Department::class)
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $department->id }}">
+                                            <i class="fa fa-edit"></i>
                                         </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('departments/active/'.$department->id) }}" style="display: inline-block;">
-                                        @csrf
+                                        @if($department->status == "Active")
+                                        <form method="POST" action="{{ url('departments/deactive/'.$department->id) }}" style="display: inline-block;">
+                                            @csrf
 
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-ban"></i>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <form method="POST" action="{{ url('departments/active/'.$department->id) }}" style="display: inline-block;">
+                                            @csrf
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    @endcan
                                 </td>
                                 <td>{{ optional($department->company)->name }}</td>
                                 <td>{{ $department->code }}</td>

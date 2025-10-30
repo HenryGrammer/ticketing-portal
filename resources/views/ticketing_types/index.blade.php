@@ -33,10 +33,12 @@
                 <h5>Ticketing Types</h5>
             </div>
             <div class="card-body">
+                @can('create', App\Role::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add ticketing type
                 </button>
+                @endcan
 
                 @include('components.error')
 
@@ -52,26 +54,28 @@
                         @foreach ($ticketing_types as $key=>$type)
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $type->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($type->status == "Active")
-                                    <form method="POST" action="{{ url('ticketing_types/deactive/'.$type->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
+                                    @can('update', App\Role::class)
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $type->id }}">
+                                            <i class="fa fa-edit"></i>
                                         </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('ticketing_types/active/'.$type->id) }}" style="display: inline-block;">
-                                        @csrf
+                                        @if($type->status == "Active")
+                                        <form method="POST" action="{{ url('ticketing_types/deactive/'.$type->id) }}" style="display: inline-block;">
+                                            @csrf
 
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-ban"></i>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <form method="POST" action="{{ url('ticketing_types/active/'.$type->id) }}" style="display: inline-block;">
+                                            @csrf
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    @endcan
                                 </td>
                                 <td>{{ $type->name }}</td>
                                 <td>

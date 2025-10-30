@@ -33,10 +33,12 @@
                 <h5>Users</h5>
             </div>
             <div class="card-body">
+                @can('create', App\User::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add user
                 </button>
+                @endcan
 
                 @include('components.error')
 
@@ -56,33 +58,37 @@
                         @foreach ($users as $user)
                         <tr>
                             <td>
-                                <button type="button" class="btn btn-warning" data-toggle="modal"
-                                    data-target="#edit{{ $user->id }}">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                @if($user->status == "Active")
-                                <form method="POST" action="{{ url('users/deactive/'.$user->id) }}"
-                                    style="display: inline-block;">
-                                    @csrf
-
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fa fa-ban"></i>
+                                @can('update', App\User::class)
+                                    <button type="button" class="btn btn-warning" data-toggle="modal"
+                                        data-target="#edit{{ $user->id }}">
+                                        <i class="fa fa-edit"></i>
                                     </button>
-                                </form>
-                                @else
-                                <form method="POST" action="{{ url('users/active/'.$user->id) }}"
-                                    style="display: inline-block;">
-                                    @csrf
+                                    @if($user->status == "Active")
+                                    <form method="POST" action="{{ url('users/deactive/'.$user->id) }}"
+                                        style="display: inline-block;">
+                                        @csrf
 
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fa fa-check"></i>
-                                    </button>
-                                </form>
-                                @endif
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fa fa-ban"></i>
+                                        </button>
+                                    </form>
+                                    @else
+                                    <form method="POST" action="{{ url('users/active/'.$user->id) }}"
+                                        style="display: inline-block;">
+                                        @csrf
+
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-check"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                @endcan
+                                @can('changePass', App\User::class)
                                 <button type="button" class="btn btn-info" data-toggle="modal"
                                     data-target="#password{{ $user->id }}">
                                     <i class="fa fa-key"></i>
                                 </button>
+                                @endcan
                             </td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
