@@ -6,7 +6,13 @@
     @endphp
     <div class="card">
         <div class="card-header">
-            <h6 class="card-title">Access Module ( {{ $role->name }} )</h6>
+            <h6 class="card-title">
+                <a href="{{ url('roles') }}" class="btn btn-sm btn-danger">
+                    <i class="fa fa-arrow-left"></i>
+                    Back
+                </a>
+                Access Module ( {{ $role->name }} )
+            </h6>
         </div>
         <form method="post" action="{{ url('roles/store_access') }}">
             @csrf

@@ -33,10 +33,12 @@
                 <h5>Companies</h5>
             </div>
             <div class="card-body">
+                @can('create', App\Company::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add company
                 </button>
+                @endcan
 
                 @include('components.error')
 
@@ -53,26 +55,28 @@
                         @foreach ($companies as $company)
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $company->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($company->status == "Active")
-                                    <form method="POST" action="{{ url('companies/deactive/'.$company->id) }}" style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
+                                    @can('update', App\Company::class)
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $company->id }}">
+                                            <i class="fa fa-edit"></i>
                                         </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('companies/active/'.$company->id) }}" style="display: inline-block;">
-                                        @csrf
+                                        @if($company->status == "Active")
+                                        <form method="POST" action="{{ url('companies/deactive/'.$company->id) }}" style="display: inline-block;">
+                                            @csrf
 
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-ban"></i>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <form method="POST" action="{{ url('companies/active/'.$company->id) }}" style="display: inline-block;">
+                                            @csrf
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    @endcan
                                 </td>
                                 <td>{{ $company->code }}</td>
                                 <td>{{ $company->name }}</td>

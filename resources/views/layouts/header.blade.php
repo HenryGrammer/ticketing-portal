@@ -113,12 +113,14 @@
                             <span class="nav-label">Users</span>
                         </a>
                     </li>
+                    @can('view', App\Company::class)
                     <li>
                         <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
                             <i class="sidebar-item-icon fa fa-building"></i>
                             <span class="nav-label">Companies</span>
                         </a>
                     </li>
+                    @endcan
                     <li>
                         <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
                             <i class="sidebar-item-icon fa fa-sitemap"></i>
