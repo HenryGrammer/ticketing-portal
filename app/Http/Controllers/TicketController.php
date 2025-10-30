@@ -183,4 +183,46 @@ class TicketController extends Controller
         toastr()->success('Successfully Saved');
         return back();
     }
+
+    public function comment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required'
+        ]);
+        
+        if ($request->threadId)
+        {
+            $thread = TicketingThread::findOrFail($request->threadId);
+            $thread->comment = $request->comment;
+            $thread->user_id = auth()->user()->id;
+            $thread->save();
+        }
+        else
+        {
+            $thread = new TicketingThread;
+            $thread->ticket_id = $id;
+            $thread->comment = $request->comment;
+            $thread->user_id = auth()->user()->id;
+            $thread->save();
+        }
+        
+        toastr()->success('Successfully Saved');
+        return back();
+    }
+
+    public function getComment(Request $request)
+    {
+        $thread = TicketingThread::findOrFail($request->id);
+        
+        return $thread;
+    }
+
+    public function deleteComment(Request $request, $id)
+    {
+        $thread = TicketingThread::findOrFail($id);
+        $thread->delete();
+        
+        toastr()->success('Successfully Deleted');
+        return back();
+    }
 }

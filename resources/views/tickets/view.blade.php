@@ -84,8 +84,18 @@
                                                 <img class="img-circle" src="{{ asset('assets/img/admin-avatar.png') }}" width="40">
                                             </a>
                                             <div class="media-body">
-                                                <div class="media-heading">{{ $thread->user->name }} <small class="float-right text-muted">{{ $thread->created_at->diffForHumans() }}</small></div>
-                                                <div class="font-13">{!! nl2br(e($thread->comment)) !!}</div>
+                                                <div class="media-heading">{{ $thread->user->name }} <small class="float-right text-muted">{{ $thread->updated_at->diffForHumans() }}</small></div>
+                                                <div class="font-13">{!! nl2br(e(strip_tags($thread->comment))) !!}</div>
+                                                <div style="display: flex; flex-direction:row; column-gap:5px; margin-top:20px;">
+                                                    <div>
+                                                        <small><a class="text-primary" onclick="editComment({{ $thread->id }})">Edit</a></small>
+                                                    </div>
+                                                    <form method="POST" id="deleteForm" action="{{ url('tickets/delete_comment/'.$thread->id) }}">
+                                                        @csrf
+                                                        
+                                                        <small><a class="text-primary deleteComment">Delete</a></small>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </li>
                                         @endforeach
@@ -95,10 +105,63 @@
                                 </ul>
                             </div>
                         </div>
+
+                        <form method="POST" action="{{ url('/tickets/comment/'.$ticket->id) }}">
+                            @csrf
+                            
+                            <input type="hidden" name="threadId">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    Comment :
+                                    <textarea name="comment" class="form-control summernote" cols="30" rows="20"></textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success float-right mt-4">Comment</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+    function editComment(id)
+    {
+        $.ajax({
+            type: "POST",
+            url:"{{ url('tickets/get_comment') }}",
+            data: {
+                id: id
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success:function(data) {
+                $("[name='threadId']").val(data.id)
+                $(".summernote").summernote('code', data.comment)
+            }
+        })
+    }
+
+    function deleteComment()
+    {
+        $(this).closest('#deleteForm').submit()
+    }
+
+    $(document).ready(function() {
+        $('.summernote').summernote({
+            placeholder: 'Write a comment...'
+        });
+
+        $(document).on('click', '.deleteComment', function() {
+            $(this).closest('form').submit();
+        })
+    })
+</script>
 @endsection

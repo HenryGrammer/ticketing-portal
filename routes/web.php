@@ -68,6 +68,9 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('update/{id}', 'TicketController@update');
         Route::post('upload_image','TicketController@uploadImage');
         Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
+        Route::post('comment/{id}', 'TicketController@comment');
+        Route::post('get_comment','TicketController@getComment');
+        Route::post('delete_comment/{id}','TicketController@deleteComment');
     });
 
     // Settings
