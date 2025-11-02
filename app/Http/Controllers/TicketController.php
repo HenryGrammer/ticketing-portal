@@ -56,6 +56,15 @@ class TicketController extends Controller
         $tickets->task = $request->task;
         $tickets->status = 'Open';
         $tickets->created_by = auth()->user()->id;
+        if ($request->hasFile('attachment'))
+        {
+            $file = $request->file('attachment');
+            $filename = time().'-'.$file->getClientOriginalName();
+            $file->move(public_path('attachment'),$filename);
+            $fileName = '/attachment/'.$filename;
+
+            $tickets->attachment = $fileName;
+        }
         $tickets->save();
 
         toastr()->success('Successfully Saved');
@@ -126,18 +135,6 @@ class TicketController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function uploadImage(Request $request)
-    {
-        if ($request->hasFile('file'))
-        {
-            $file = $request->file('file');
-            $filename = time().'-'.$file->getClientOriginalName();
-            $url = $file->move(public_path('summernote'),$filename);
-
-            return $url;
-        }
     }
 
     public function list(Request $request)

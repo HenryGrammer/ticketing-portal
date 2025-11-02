@@ -43,7 +43,7 @@
                 <table class="table table-bordered table-hover table-sm tables">
                     <thead>
                         <tr>
-                            {{-- <th>Action</th> --}}
+                            <th>Action</th>
                             <th>Ticket #</th>
                             <th>Date Created</th>
                             <th>Subject</th>
@@ -55,8 +55,11 @@
                     <tbody>
                         @foreach ($tickets as $key=>$ticket)
                             <tr>
-                                {{-- <td>
-                                </td> --}}
+                                <td>
+                                    <a href="{{ url('tickets/details/'.$ticket->id) }}" class="btn btn-primary">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </td>
                                 <td>{{ str_pad($ticket->id, '7', 0, STR_PAD_LEFT) }}</td>
                                 <td>{{ date('M d, Y', strtotime($ticket->created_at)) }}</td>
                                 <td>{{ $ticket->subject }}</td>
@@ -99,34 +102,6 @@
             ordering: false,
             pageLength: 15
         })
-
-        $("#summernote").summernote({
-            height: 150, // Set desired height
-            dialogsInBody: true, // Crucial for modal integration
-            callbacks: {
-                onImageUpload: function(files) {
-                    uploadImage(files[0])
-                }
-            }
-        })
-
-        function uploadImage(file) {
-            var data = new FormData()
-            data.append("file", file)
-            data.append("_token", '{{ csrf_token() }}')
-
-            $.ajax({
-                url: "{{ url('tickets/upload_image') }}",
-                type:"POST",
-                cache:false,
-                contentType: false,
-                processData: false,
-                data: data,
-                success:function(url) {
-                    $("#summernote").summernote('insertImage',url)
-                }
-            })
-        }
     })
 </script>
 @endsection

@@ -92,12 +92,16 @@
                             <li>
                                 <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">Create ticket</a>
                             </li>
+                            @can('viewAssign', App\Ticket::class)
                             <li>
                                 <a href="{{ url('tickets/assign') }}">Assigned to me</a>
                             </li>
+                            @endcan
+                            @can('viewListTicket', App\Ticket::class)
                             <li>
                                 <a href="{{ url('tickets/list') }}">List of tickets</a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
                     <li>
@@ -106,8 +110,8 @@
                             <span class="nav-label">Reports</span>
                         </a>
                     </li>
-                    <li class="heading">SETTINGS</li>
                     @can('view', App\User::class)
+                    <li class="heading">SETTINGS</li>
                     <li>
                         <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
                             <i class="sidebar-item-icon fa fa-user"></i>

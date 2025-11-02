@@ -8,6 +8,7 @@
                 <div style="display: flex; flex-direction:row; justify-content:space-between;">
                     <h6 class="card-title">View ticket details</h6>
 
+                    @if(auth()->user()->role->name != "User")
                     <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}">
                         @csrf
 
@@ -17,6 +18,7 @@
                             Acknowledge
                         </button>
                     </form>
+                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -65,7 +67,10 @@
                 <div class="ibox ibox-primary border border-primary">
                     <div class="ibox-head">{{ $ticket->subject }}</div>
                     <div class="ibox-body">
-                        {!! nl2br(e(strip_tags($ticket->task))) !!}
+                        <p>{!! nl2br(e(strip_tags($ticket->task))) !!}</p>
+                        @if($ticket->attachment)
+                        <img src="{{ url($ticket->attachment) }}" style="width:min-content; height:400px;">
+                        @endif
                     </div>
                 </div>
 
@@ -114,7 +119,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     Comment :
-                                    <textarea name="comment" class="form-control summernote" cols="30" rows="20"></textarea>
+                                    <textarea name="comment" class="form-control input-sm" placeholder="Write a comment..." cols="30" rows="10"></textarea>
                                 </div>
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-success float-right mt-4">Comment</button>
@@ -155,9 +160,6 @@
     }
 
     $(document).ready(function() {
-        $('.summernote').summernote({
-            placeholder: 'Write a comment...'
-        });
 
         $(document).on('click', '.deleteComment', function() {
             $(this).closest('form').submit();
