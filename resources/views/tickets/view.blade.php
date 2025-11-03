@@ -9,15 +9,52 @@
                     <h6 class="card-title">View ticket details</h6>
 
                     @if(auth()->user()->role->name != "User")
-                    <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}">
-                        @csrf
-
-                        <input type="hidden" name="ticketing_type" value="Acknowledgement">
-
-                        <button type="submit" class="btn btn-success">
-                            Acknowledge
+                    <div>
+                        <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
+                            @csrf
+                            <input type="hidden" name="ticketing_type" value="Acknowledgement">
+    
+                            <button type="submit" class="btn btn-success">
+                                Acknowledge Ticket
+                            </button>
+                        </form>
+    
+                        <button type="submit" class="btn btn-danger" data-toggle="modal" data-target="#closeTicket{{ $ticket->id }}">
+                            Attach an Image or Screenshot
                         </button>
-                    </form>
+                        <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
+                            @csrf
+                            <input type="hidden" name="ticketing_type" value="Awaiting 1st acknowledgement">
+                            
+                            <button type="submit" class="btn btn-success">
+                                Awaiting 1st acknowledgement
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
+                            @csrf
+                            <input type="hidden" name="ticketing_type" value="Awaiting 2nd acknowledgement">
+
+                            <button type="submit" class="btn btn-success">
+                                Awaiting 2nd acknowledgement
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
+                            @csrf
+                            <input type="hidden" name="ticketing_type" value="Closing Ticket">
+
+                            <button type="submit" class="btn btn-warning">
+                                Closing Ticket
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
+                            @csrf
+                            <input type="hidden" name="ticketing_type" value="Resolving Ticket">
+
+                            <button type="submit" class="btn btn-primary">
+                                Resolving a Ticket
+                            </button>
+                        </form>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -59,6 +96,14 @@
                             </dd>
                             <dt class="col-sm-3 text-right">Date Created :</dt>
                             <dd class="col-sm-9">{{ date('M d Y', strtotime($ticket->created_at)) }}</dd>
+                            <dt class="col-sm-3 text-right">Proof :</dt>
+                            <dd class="col-sm-9">
+                                @if($ticket->proof)
+                                    <a href="{{ url($ticket->proof) }}" target="_blank">
+                                        <i class="fa fa-file"></i>
+                                    </a>
+                                @endif
+                            </dd>
                         </dl>
                     </div>
                 </div>
@@ -132,6 +177,8 @@
         </div>
     </div>
 </div>
+
+@include('tickets.close_ticket')
 @endsection
 
 @section('js')

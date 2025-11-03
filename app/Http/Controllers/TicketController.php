@@ -222,4 +222,33 @@ class TicketController extends Controller
         toastr()->success('Successfully Deleted');
         return back();
     }
+
+    public function closeTicket(Request $request,$id)
+    {
+        // dd($request->all(), $id);
+        $request->validate([
+            'proof' => ['required', 'max:2048']
+        ]);
+
+        $file = $request->file('proof');
+        $name = time().'_'.$file->getClientOriginalName();
+        $file->move(public_path('proof'),$name);
+
+        $ticket = Ticket::findOrFail($id);
+        $ticket->proof = '/proof/'.$name;
+        $ticket->status = 'Closed';
+        $ticket->save();
+
+        $ticketing_type = TicketingType::where('name', $request->ticketing_type)->first();
+        $ticketing_comment = TicketingComment::where('ticketing_type_id', $ticketing_type->id)->first();
+        
+        $thread = new TicketingThread;
+        $thread->ticket_id = $ticket->id;
+        $thread->comment = $ticketing_comment->information;
+        $thread->user_id = auth()->user()->id;
+        $thread->save();
+
+        toastr()->success('Successfully Closed');
+        return back();
+    }
 }

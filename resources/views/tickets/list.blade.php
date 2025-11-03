@@ -51,11 +51,13 @@
                         @foreach ($tickets as $key=>$ticket)
                             <tr>
                                 <td>
-                                    @if($ticket->status != "Closed")
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $ticket->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @endif
+                                    @can('update', App\Ticket::class)
+                                        @if($ticket->status != "Closed")
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $ticket->id }}">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        @endif
+                                    @endcan
                                     <a href="{{ url('tickets/details/'.$ticket->id) }}" class="btn btn-primary">
                                         <i class="fa fa-eye"></i>
                                     </a>

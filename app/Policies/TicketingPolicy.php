@@ -30,7 +30,7 @@ class TicketingPolicy
     public function viewListTicket(User $user) 
     {
         $permissions = $user->role->access_module->pluck('permissions')->toArray();
-        if(in_array('Edit ticket', $permissions))
+        if(in_array('List of tickets', $permissions))
         {
             return true;
         }
@@ -57,7 +57,12 @@ class TicketingPolicy
      */
     public function update(User $user)
     {
-        //
+        $permissions = $user->role->access_module->pluck('permissions')->toArray();
+        if(in_array('Edit ticket', $permissions))
+        {
+            return true;
+        }
+        return false;
     }
 
     /**

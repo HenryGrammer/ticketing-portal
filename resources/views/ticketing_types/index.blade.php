@@ -54,7 +54,7 @@
                         @foreach ($ticketing_types as $key=>$type)
                             <tr>
                                 <td>
-                                    @can('update', App\Role::class)
+                                    @can('update', App\TicketingType::class)
                                         <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $type->id }}">
                                             <i class="fa fa-edit"></i>
                                         </button>

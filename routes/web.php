@@ -76,6 +76,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('comment/{id}', 'TicketController@comment');
         Route::post('get_comment','TicketController@getComment');
         Route::post('delete_comment/{id}','TicketController@deleteComment');
+        Route::post('close_ticket/{id}','TicketController@closeTicket');
     });
 
     // Settings
