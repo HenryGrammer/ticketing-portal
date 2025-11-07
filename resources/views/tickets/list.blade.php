@@ -87,7 +87,7 @@
                                 <td>{{ $ticket->subject }}</td>
                                 <td>{{ $ticket->priority }}</td>
                                 <td>
-                                    @if($ticket->assigned_to)
+                                    @if($ticket->assignTo)
                                         {{ $ticket->assignTo->name }}
                                     @else
                                         No IT assigned yet

@@ -20,6 +20,7 @@
     <link href="{{ asset('assets/vendors/select2/dist/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/summernote/dist/summernote.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/bootstrap-markdown/css/bootstrap-markdown.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/vendors/morris.js/morris.css') }}" rel="stylesheet" />
 </head>
 
 <body class="fixed-navbar">
@@ -204,6 +205,8 @@
     <script src="{{ asset('assets/vendors/select2/dist/js/select2.full.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/summernote/dist/summernote.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/bootstrap-markdown/js/bootstrap-markdown.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/vendors/morris.js/morris.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/vendors/raphael/raphael.min.js') }}" type="text/javascript"></script>
     <!-- PAGE LEVEL SCRIPTS-->
     {{-- <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script> --}}
     <script>
