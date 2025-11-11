@@ -38,6 +38,10 @@ class HomeController extends Controller
             {
                 $tickets = Ticket::whereYear('created_at',date('Y'))->whereMonth('created_at', date('m', mktime(0,0,0,$m,1,date('Y'))))->where('assign_by', auth()->user()->id)->count();
             }
+            elseif(auth()->user()->role->name == "User")
+            {
+                $tickets = Ticket::where('created_by', auth()->user()->id)->count();
+            }
             
             $object = new stdClass;
             $object->month = date('M-Y', mktime(0,0,0,$m,1,date('Y')));
@@ -57,11 +61,11 @@ class HomeController extends Controller
         }
 
         $it_personnels = User::where('department_id',1)->where('status','Active')->get();
-        if (auth()->user()->role->name == "Administrator")
+        if (in_array(auth()->user()->role->name, ["Administrator", "IT Head"]))
         {
             $tickets_per_personnel = Ticket::with('assignTo','createdBy')->whereYear('created_at', date('Y', strtotime($request->month)))->whereMonth('created_at', date('m', strtotime($request->month)))->where('assigned_to', $request->personnel)->where('status','Closed')->get();
         }
-        elseif(in_array(auth()->user()->role->name, ["IT Head", "IT Staff"]))
+        elseif(auth()->user()->role->name == "IT Staff")
         {
             $tickets_per_personnel = Ticket::with('assignTo','createdBy')->whereYear('created_at', date('Y', strtotime($request->month)))->whereMonth('created_at', date('m', strtotime($request->month)))->where('assigned_to', auth()->user()->id)->where('status','Closed')->get();
         }

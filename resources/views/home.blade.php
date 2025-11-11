@@ -12,6 +12,7 @@
             </div>
         </div>
     </div>
+    @if(auth()->user()->role->name != "User")
     <div class="col-lg-12">
         <div class="ibox">
             <div class="ibox-head">
@@ -47,7 +48,7 @@
                         <div class="col-md-4">
                             <input type="month" name="month" value="{{ $month_data }}" class="form-control input-sm">
                         </div>
-                        @if(auth()->user()->role->name == "Administrator")
+                        @if(auth()->user()->role->name == "Administrator" || auth()->user()->role->name == "IT Head")
                         <div class="col-md-4">
                             <select data-placeholder="Select personnel" name="personnel" class="select2 form-control">
                                 <option value=""></option>
@@ -83,14 +84,23 @@
                                 <th>Priority Level</th>
                                 <th>Staff Assigned</th>
                                 <th>Date Created</th>
+                                <th>Date Assign</th>
                                 <th>Target</th>
                                 <th>Closed Date</th>
                                 <th>Ticket Duration</th>
+                                <th>%</th>
                                 <th>Remarks</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                $due = 0;
+                                $avg_percent_total=0;
+                                $percent_count=0;
+                                $open=0;
+                                $delayed=0;
+                            @endphp
                             @foreach ($tickets_per_personnel as $ticket)
                             <tr>
                                 <td>{{ str_pad($ticket->id, '7', 0, STR_PAD_LEFT) }}</td>
@@ -99,10 +109,62 @@
                                 <td>{{ $ticket->priority }}</td>
                                 <td>{{ $ticket->assignTo->name }}</td>
                                 <td>{{ date('M d Y', strtotime($ticket->created_at)) }}</td>
-                                <td>0000-00-00</td>
-                                <td>0000-00-00</td>
-                                <td>0 day</td>
-                                <td></td>
+                                <td>
+                                    @if($ticket->date_assign)
+                                        {{ date('M d Y', strtotime($ticket->date_assign)) }}
+                                    @endif
+                                </td>
+                                @php
+                                    $priority = $ticket->priority;
+                                    if ($priority == "Low") {
+                                        $per =5;
+                                        $due_date = date('Y-m-d h:m', strtotime('+5 weekdays',strtotime($ticket->date_assign)));
+                                    } elseif ($priority == "Medium") {
+                                        $due_date = date('Y-m-d h:m', strtotime('+3 weekdays',strtotime($ticket->date_assign)));
+                                        $per =3;
+                                    } elseif ($priority == "High") {
+                                        $due_date = date('Y-m-d h:m', strtotime('+1 day',strtotime($ticket->date_assign)));
+                                        $per =1;
+                                    } elseif ($priority == "Critical") {
+                                        $due_date = date('Y-m-d h:m', strtotime('+4 hours',strtotime($ticket->date_assign)));
+                                        $per =.17;
+                                    }
+
+                                    if($ticket->date_closed != null)
+                                    {
+                                        $datetime = strtotime($due_date)-strtotime($ticket->date_closed);
+                                        $datediff = strtotime($ticket->date_closed)-strtotime($ticket->date_assign);
+                                    }
+                                    else {
+                                        $datetime = strtotime($due_date)-strtotime(date('Y-m-d H:i:s'));
+                                        $datediff = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->date_assign);
+                                    }
+                                @endphp
+                                <td>{{ date('M d Y', strtotime($due_date)) }}</td>
+                                <td>
+                                    @if($ticket->date_closed)
+                                        {{ date('M d Y', strtotime($ticket->date_closed)) }}
+                                    @endif
+                                </td>
+                                <td>{{number_format($datediff/60/60/24,2)}} Days</td>
+                                <td>
+                                    @php
+                                        $percent = (($datediff/60/60/24)/$per)*100;
+                                        $avg_percent_total = $avg_percent_total + $percent;
+                                        $percent_count++;
+                                    @endphp
+                                    {{number_format($percent,2)}} %
+                                </td>
+                                <td>
+                                    @if($datetime>=0)
+                                        Not Delayed
+                                    @else
+                                    @php
+                                        $delayed++;
+                                    @endphp
+                                        Delayed
+                                    @endif
+                                </td>
                                 <td>{{ $ticket->status }}</td>
                             </tr>
                             @endforeach
@@ -112,6 +174,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection
 

@@ -230,13 +230,16 @@ class TicketController extends Controller
             'proof' => ['required', 'max:2048']
         ]);
 
-        $file = $request->file('proof');
-        $name = time().'_'.$file->getClientOriginalName();
-        $file->move(public_path('proof'),$name);
-
         $ticket = Ticket::findOrFail($id);
-        $ticket->proof = '/proof/'.$name;
+        if ($request->hasFile('proof'))
+        {
+            $file = $request->file('proof');
+            $name = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('proof'),$name);
+            $ticket->proof = '/proof/'.$name;
+        }
         $ticket->status = 'Closed';
+        $ticket->date_closed = date('Y-m-d');
         $ticket->save();
 
         $ticketing_type = TicketingType::where('name', $request->ticketing_type)->first();
