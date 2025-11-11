@@ -106,7 +106,7 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="" class="@if(Request::is('reports')) active @endif">
+                        <a href="{{ url('reports') }}" class="@if(Request::is('reports')) active @endif">
                             <i class="sidebar-item-icon fa fa-file"></i>
                             <span class="nav-label">Reports</span>
                         </a>

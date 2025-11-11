@@ -79,6 +79,9 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('close_ticket/{id}','TicketController@closeTicket');
     });
 
+    // Reports
+    Route::get('reports','ReportController@index');
+
     // Settings
     // Ticketing Comments
     Route::get('ticketing_comments','TicketingCommentController@index');
