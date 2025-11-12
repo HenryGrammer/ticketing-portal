@@ -40,7 +40,7 @@ class HomeController extends Controller
             }
             elseif(auth()->user()->role->name == "User")
             {
-                $tickets = Ticket::where('created_by', auth()->user()->id)->count();
+                $tickets = Ticket::whereYear('created_at',date('Y'))->whereMonth('created_at', date('m', mktime(0,0,0,$m,1,date('Y'))))->where('created_by', auth()->user()->id)->count();
             }
             
             $object = new stdClass;
@@ -68,6 +68,10 @@ class HomeController extends Controller
         elseif(auth()->user()->role->name == "IT Staff")
         {
             $tickets_per_personnel = Ticket::with('assignTo','createdBy')->whereYear('created_at', date('Y', strtotime($request->month)))->whereMonth('created_at', date('m', strtotime($request->month)))->where('assigned_to', auth()->user()->id)->where('status','Closed')->get();
+        }
+        elseif (auth()->user()->role->name == "User") 
+        {
+            $tickets_per_personnel = Ticket::with('assignTo','createdBy')->whereYear('created_at', date('Y'))->where('created_by', auth()->user()->id)->get();
         }
         // $tickets = Ticket
         

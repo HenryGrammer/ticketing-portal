@@ -175,6 +175,35 @@
         </div>
     </div>
     @endif
+    <div class="col-lg-12">
+        <div class="ibox">
+            <div class="ibox-head">
+                <div class="ibox-title">List of tickets <span class="label label-primary">as of ({{ date('Y') }})</span></div>
+            </div>
+            <div class="ibox-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered tables">
+                        <thead>
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Status</th>
+                                <th>Assigned IT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($tickets_per_personnel as $ticket)
+                            <tr>
+                                <td>{{ str_pad($ticket->id, '7', 0, STR_PAD_LEFT) }}</td>
+                                <td>{{ $ticket->status }}</td>
+                                <td>{{ optional($ticket->assignTo)->name }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 

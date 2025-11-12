@@ -105,12 +105,14 @@
                             @endcan
                         </ul>
                     </li>
+                    @if(auth()->user()->role->name != "User")
                     <li>
                         <a href="{{ url('reports') }}" class="@if(Request::is('reports')) active @endif">
                             <i class="sidebar-item-icon fa fa-file"></i>
                             <span class="nav-label">Reports</span>
                         </a>
                     </li>
+                    @endif
                     @can('view', App\User::class)
                     <li class="heading">SETTINGS</li>
                     <li>
