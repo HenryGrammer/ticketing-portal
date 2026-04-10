@@ -21,6 +21,7 @@
     <link href="{{ asset('assets/vendors/summernote/dist/summernote.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/bootstrap-markdown/css/bootstrap-markdown.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/morris.js/morris.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/jquery.toast.min.css') }}">
 </head>
 
 <body class="fixed-navbar">
@@ -83,90 +84,32 @@
                         </a>
                     </li>
                     <li class="heading">MAIN MENU</li>
-                    <li>
-                        <a href="">
-                            <i class="sidebar-item-icon fa fa-ticket"></i>
-                                <span class="nav-label">Tickets</span><i class="fa fa-angle-left arrow">
-                            </i>
-                        </a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="{{ url('tickets') }}" class="@if(Request::is('tickets')) active @endif">Create ticket</a>
-                            </li>
-                            @can('viewAssign', App\Ticket::class)
-                            <li>
-                                <a href="{{ url('tickets/assign') }}">Assigned to me</a>
-                            </li>
-                            @endcan
-                            @can('viewListTicket', App\Ticket::class)
-                            <li>
-                                <a href="{{ url('tickets/list') }}">List of tickets</a>
-                            </li>
-                            @endcan
-                        </ul>
-                    </li>
-                    @if(auth()->user()->role->name != "User")
-                    <li>
-                        <a href="{{ url('reports') }}" class="@if(Request::is('reports')) active @endif">
-                            <i class="sidebar-item-icon fa fa-file"></i>
-                            <span class="nav-label">Reports</span>
-                        </a>
-                    </li>
-                    @endif
-                    @can('view', App\User::class)
-                    <li class="heading">SETTINGS</li>
-                    <li>
-                        <a href="{{ url('users') }}" class="@if(Request::is('users')) active @endif">
-                            <i class="sidebar-item-icon fa fa-user"></i>
-                            <span class="nav-label">Users</span>
-                        </a>
-                    </li>
-                    @endcan
-                    @can('view', App\Company::class)
-                    <li>
-                        <a href="{{ url('companies') }}" class="@if(Request::is('companies')) active @endif">
-                            <i class="sidebar-item-icon fa fa-building"></i>
-                            <span class="nav-label">Companies</span>
-                        </a>
-                    </li>
-                    @endcan
-                    @can('view', App\Department::class)
-                    <li>
-                        <a href="{{ url('departments') }}" class="@if(Request::is('departments')) active @endif">
-                            <i class="sidebar-item-icon fa fa-sitemap"></i>
-                            <span class="nav-label">Departments</span>
-                        </a>
-                    </li>
-                    @endcan
-                    @can('view', App\Role::class)
-                    <li>
-                        <a href="{{ url('roles') }}" class="@if(Request::is('roles')) active @endif">
-                            <i class="sidebar-item-icon fa fa-users"></i>
-                            <span class="nav-label">Roles</span>
-                        </a>
-                    </li>
-                    @endcan
-                    @if((auth()->user()->can('view', App\TicketingComment::class)) || (auth()->user()->can('view', App\TicketingComment::class)))
-                    <li>
-                        <a href="">
-                            <i class="sidebar-item-icon fa fa-cog"></i>
-                                <span class="nav-label">Ticketing Settings</span><i class="fa fa-angle-left arrow">
-                            </i>
-                        </a>
-                        <ul class="nav-2-level collapse">
-                            @can('view', App\TicketingComment::class)
-                            <li>
-                                <a href="{{ url('ticketing_comments') }}" class="@if(Request::is('ticketing_comments')) active @endif">Ticketing Comments</a>
-                            </li>
-                            @endcan
-                            @can('view', App\TicketingType::class)
-                            <li>
-                                <a href="{{ url('ticketing_types') }}" class="@if(Request::is('ticketing_types')) active @endif">Ticketing Types</a>
-                            </li>
-                            @endcan
-                        </ul>
-                    </li>
-                    @endif
+                    @php
+                        use App\Helper\HelperClass;
+
+                        $modules = HelperClass::modules();
+                    @endphp
+
+                    @foreach ($modules as $module)
+                        <li>
+                            <a href="{{ config('app.url').'/'.$module->route_url }}">
+                                <i class="sidebar-item-icon {{ $module->icon }}"></i>
+                                <span class="nav-label">{{$module->name}}</span>
+                                @if(count($module->submodule) > 0)
+                                <i class="fa fa-angle-left arrow"></i>
+                                @endif
+                            </a>
+                            @if(count($module->submodule) > 0)
+                                <ul class="nav-2-level collapse">
+                                    @foreach ($module->submodule as $submodule)
+                                    <li>
+                                        <a href="">{{$submodule->name}}</a>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </li>
+                    @endforeach
                 </ul>
             </div>
         </nav>
@@ -209,6 +152,8 @@
     <script src="{{ asset('assets/vendors/bootstrap-markdown/js/bootstrap-markdown.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/morris.js/morris.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/vendors/raphael/raphael.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset("js/jquery.toast.min.js") }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/6.0.4/bootbox.min.js" integrity="sha512-l9O8NTlhknUJDJQlUVeavXJrtGEEYma4O29lRjEV7mO6DxXVvX9SWEIfnAlpnf+2T8LHTfsVuzttCDEMpIyaew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- PAGE LEVEL SCRIPTS-->
     {{-- <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script> --}}
     <script>

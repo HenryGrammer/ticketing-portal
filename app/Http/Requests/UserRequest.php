@@ -32,4 +32,11 @@ class UserRequest extends FormRequest
             'role' => ['required', 'exists:roles,id']
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.regex' => 'Name does not contain number'
+        ];
+    }
 }

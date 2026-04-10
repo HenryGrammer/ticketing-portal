@@ -33,16 +33,12 @@
                 <h5>Users</h5>
             </div>
             <div class="card-body">
-                @can('create', App\User::class)
-                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
+                <button type="button" class="btn btn-primary mb-3" id="addBtn" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add user
                 </button>
-                @endcan
 
-                @include('components.error')
-
-                <table class="table table-bordered table-hover table-sm tables">
+                <table class="table table-bordered table-hover table-sm" id="userTable">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -55,61 +51,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($users as $user)
-                        <tr>
-                            <td>
-                                @can('update', App\User::class)
-                                    <button type="button" class="btn btn-warning" data-toggle="modal"
-                                        data-target="#edit{{ $user->id }}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    @if($user->status == "Active")
-                                    <form method="POST" action="{{ url('users/deactive/'.$user->id) }}"
-                                        style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-ban"></i>
-                                        </button>
-                                    </form>
-                                    @else
-                                    <form method="POST" action="{{ url('users/active/'.$user->id) }}"
-                                        style="display: inline-block;">
-                                        @csrf
-
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                    </form>
-                                    @endif
-                                @endcan
-                                @can('changePass', App\User::class)
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#password{{ $user->id }}">
-                                    <i class="fa fa-key"></i>
-                                </button>
-                                @endcan
-                            </td>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->company->name }}</td>
-                            <td>{{ $user->department->name }}</td>
-                            <td>{{ $user->role->name }}</td>
-                            <td>
-                                @if($user->status == "Active")
-                                <span class="badge badge-success">
-                                    @elseif($user->status == "Inactive")
-                                    <span class="badge badge-danger">
-                                        @endif
-
-                                        {{ $user->status }}
-                                    </span>
-                            </td>
-                        </tr>
-
-                        @include('users.edit')
-                        @include('users.password')
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -118,18 +59,250 @@
 </div>
 
 @include('users.new')
+@include('users.edit')
+{{-- @include('users.password') --}}
+
 @endsection
 
 @section('js')
+<script src="{{ asset("js/Helper.js") }}"></script>
 <script>
+    function companies() {
+        initializeAjax("POST", "{{ config('app.url') }}/users/get-company", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                response.forEach(res => {
+                    option += `<option value="${res.id}">${res.name}</option>`
+                })
+                
+                $("[name='company']").html(option)
+                $("[name='company']").select2({
+                    allowClear: true,
+                })
+            }
+        })
+    }
+
+    function department() {
+        initializeAjax("POST", "{{ config('app.url') }}/users/get-department", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                response.forEach(res => {
+                    option += `<option value="${res.id}">${res.name}</option>`
+                })
+                
+                $("[name='department']").html(option)
+                $("[name='department']").select2({
+                    allowClear: true,
+                })
+            }
+        })
+    }
+
+    function role() {
+        initializeAjax("POST", "{{ config('app.url') }}/users/get-role", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                response.forEach(res => {
+                    option += `<option value="${res.id}">${res.name}</option>`
+                })
+                
+                $("[name='role']").html(option)
+                $("[name='role']").select2({
+                    allowClear: true,
+                })
+            }
+        })
+    }
+    
     $(document).ready(function() {
-        $(".tables").DataTable({
-            ordering: false,
-            pageLength: 15,
-            stateSave: true
+        companies()
+        department()
+        role()
+
+        var columns = [
+            {
+                data: "Action",
+                render: function(data, type, row) {
+                    return `
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v mr-2" aria-hidden="true"></i>
+                                Action
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="javascript:void(0)" id="editDropdown" data-id="${row.id}">Edit</a>
+                                ${
+                                    row.status == "Active"
+                                    ?
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="deactivateDropdown" data-id="${row.id}">Deactivate</a>`
+                                    :
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="activateDropdown" data-id="${row.id}">Activate</a>`
+                                } 
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {data: "name"},
+            {data: "email"},
+            {data: "company.Company"},
+            {data: "department.Department"},
+            {data: "role.Role"},
+            {
+                data: "status",
+                render: function(data, type, row) {
+                    let badgeClass = 'bg-success'
+                    if (row.status == "Inactive") {
+                        badgeClass = 'bg-danger'
+                    }
+
+                    return `<span class="badge ${badgeClass}">${row.status}</span>`
+                }
+            },
+        ];
+
+        initializeDataTable("#userTable", "{{ config('app.url') }}/users/list", "POST", columns)
+
+        $("#addUserForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray();
+
+            initializeAjax("POST", "{{ config('app.url') }}/users/store", formData, {
+                beforeSend: function() {
+                    $("#saveBtn").prop("disabled", true).text("Saving...")
+                },
+                success: function(response) {
+                    if(response.status == "success") {
+                        successMessage(response.message)
+                        $("#addUserForm").trigger("reset")
+                    } else {
+                        errorMessage(response.message)
+                    }
+                },
+                complete: function() {
+                    $("#saveBtn").prop("disabled", false).text("Save")
+                    $("#new").modal("hide")
+                    reloadTable("userTable")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("addUserForm", errors)
+                }
+            })
         })
 
-        $('.select2').select2()
+        $(document).on("click", "#editDropdown", function() {
+            $("#edit").modal("show")
+
+            var id = $(this).data("id")
+            initializeAjax("POST", `{{ config('app.url') }}/users/edit/${id}`, {}, {
+                success: function(response) {
+                    $("[name='company']").val(response.company_id).trigger("change")
+                    $("[name='department']").val(response.department_id).trigger("change")
+                    $("[name='name']").val(response.name)
+                    $("[name='email']").val(response.email)
+                    $("[name='id']").val(response.id)
+                    $("[name='role']").val(response.role_id).trigger("change")
+                }
+            })
+        })
+
+        $("#updateUserForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray();
+            var id = $("[name='id']").val()
+            initializeAjax("POST", "{{ config('app.url') }}/users/update/"+id, formData, {
+                beforeSend: function() {
+                    $("#updateBtn").prop("disabled", true).text("Updating...")
+                },
+                success: function(response) {
+                    if(response.status == "success") {
+                        successMessage(response.message)
+                        $("#updateUserForm").trigger("reset")
+                    } else {
+                        errorMessage(response.message)
+                    }
+                },
+                complete: function() {
+                    $("#updateBtn").prop("disabled", false).text("Update")
+                    $("#edit").modal("hide")
+                    reloadTable("userTable")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("updateUserForm", errors)
+                }
+            })
+        })
+
+        $(document).on("click", "#deactivateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Deactivate",
+                message: 'Are you sure you want to deactivate this user?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/users/deactive/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("userTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
+
+        $(document).on("click", "#activateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to activate this user?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/users/active/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("userTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
     })
 </script>
 @endsection

@@ -19,17 +19,21 @@ Route::get('/', function () {
 
 Auth::routes();
 Route::group(['middleware' => 'auth'], function() {
-    
     Route::get('/home', 'HomeController@index')->name('home');
 
     // Users
     Route::get('users','UserController@index');
     Route::prefix('users')->group(function() {
+        Route::post("get-company", "UserController@company");
+        Route::post("get-department", "UserController@department");
+        Route::post("get-role", "UserController@role");
+        Route::post("list", "UserController@list");
         Route::post('store', 'UserController@store');
+        Route::post('edit/{id}', 'UserController@edit');
         Route::post('update/{id}', 'UserController@update');
         Route::post('deactive/{id}', 'UserController@deactive');
         Route::post('active/{id}', 'UserController@active');
-        Route::post('password/{id}','UserController@password');
+        // Route::post('password/{<i></i>d}','UserController@password');
     });
 
     // Companies

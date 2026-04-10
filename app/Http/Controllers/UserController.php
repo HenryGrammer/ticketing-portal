@@ -7,6 +7,7 @@ use App\Department;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserRequest;
 use App\Role;
+use App\Services\users\UserServices;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -17,23 +18,44 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    protected $userServices;
+    public function __construct(UserServices $userServices)
+    {
+        $this->userServices = $userServices;
+    }
+
     public function index()
     {
-        $users = User::with('company', 'department')->get();
+        return view('users.index');
+    }
 
-        $companies = Company::where('status', 'Active')->get();
-        $departments = Department::where('status', 'Active')->get();
-        $roles = Role::where('status','Active')->get();
+    public function company() {
+        $companies = $this->userServices->companies();
 
-        return view(
-            'users.index',
-            array(
-                'users' => $users,
-                'companies' => $companies,
-                'departments' => $departments,
-                'roles' => $roles
-            )
-        );
+        return response()->json($companies);
+    }
+
+    public function department() {
+        $departments = $this->userServices->department();
+
+        return response()->json($departments);
+    }
+
+    public function role() {
+        $roles = $this->userServices->role();
+
+        return response()->json($roles);
+    }
+
+    public function list(Request $request) {
+        try {
+            $users = $this->userServices->getUsers($request);
+
+            return response()->json($users, 200);
+        } catch (\Throwable $e) {
+            
+            return response()->json(['status' => 'error', 'message' => 'User list not found'], 500);
+        }
     }
 
     /**
@@ -52,22 +74,15 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(UserRequest $request)
-    {
-        // dd($request->all());
-        $user = new User;
-        $user->company_id = $request->company;
-        $user->department_id = $request->department;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role = $request->roles;
-        $user->password = bcrypt('wgroup123');
-        $user->status = 'Active';
-        $user->role_id = $request->role;
-        $user->save();
+    public function store(UserRequest $request) {
+        try {
+            $this->userServices->storeUsers($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return response()->json(['status' => 'success', 'message' => 'Successfully Saved']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['status' => 'error', 'errors' => $e->getMessage(), 'message' => 'Something went wrong']);
+        }
     }
 
     /**
@@ -87,9 +102,15 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //
+    public function edit($id) {
+        try {
+            $users = $this->userServices->editUser($id);
+
+            return response()->json($users);
+        } catch (\Throwable $e) {
+
+            return response()->json(['status' => 'error', 'message' => 'User not found']);
+        }
     }
 
     /**
@@ -99,18 +120,15 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UserRequest $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $user->company_id = $request->company;
-        $user->department_id = $request->department;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role_id = $request->role;
-        $user->save();
+    public function update(UserRequest $request, $id) {
+        try {
+            $this->userServices->updateUsers($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return response()->json(['status' => 'success', 'message' => 'Successfully Updated']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['status' => 'error', 'errors' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -126,33 +144,37 @@ class UserController extends Controller
 
     public function deactive($id)
     {
-        $user = User::findOrFail($id);
-        $user->status = 'Inactive';
-        $user->save();
+        try {
+            $this->userServices->deactivateUser($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return response()->json(['status' => 'success', 'message' => 'Successfully Deactivated']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['status' => 'error', 'errors' => $e->getMessage(), 'message' => 'Something went wrong']);
+        }
     }
 
     public function active($id)
     {
-        $user = User::findOrFail($id);
-        $user->status = 'Active';
-        $user->save();
+        try {
+            $this->userServices->activateUser($id);
 
-        toastr()->success('Successfully Activated');
-        return back();
+            return response()->json(['status' => 'success', 'message' => 'Successfully Activated']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['status' => 'error', 'errors' => $e->getMessage(), 'message' => 'Something went wrong']);
+        }
     }
 
     public function password(PasswordRequest $request, $id)
     {
         // dd($request->all()); 
-        $user = User::findOrFail($id);
-        $user->password = $request->password;
-        $user->save();
+        // $user = User::findOrFail($id);
+        // $user->password = $request->password;
+        // $user->save();
 
-        toastr()->success('Successfully changed password');
-        return back();
+        // toastr()->success('Successfully changed password');
+        // return back();
 
     }
 }
