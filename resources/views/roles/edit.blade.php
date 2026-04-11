@@ -1,29 +1,22 @@
-<div class="modal" id="edit{{ $role->id }}">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title">Edit role</h6>
-            </div>
-            <form method="POST" action="{{ url('roles/update/'.$role->id) }}">
-                @csrf
+@component("components.modal",[
+    'modalId' => 'edit',
+    'modalTitle' => 'Edit role',
+    'formId' => 'updateRoleForm',
+    'buttonName' => 'Update',
+    'buttonId' => 'updateBtn'
+])
 
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            Code :
-                            <input type="text" name="code" class="form-control input-sm" value="{{ $role->code }}">
-                        </div>
-                        <div class="col-md-12">
-                            Name :
-                            <input type="text" name="name" class="form-control input-sm" value="{{ $role->name }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save</button>
-                </div>
-            </form>
-        </div>
+<div class="row">
+    <input type="hidden" name="id">
+    <div class="col-md-12">
+        Code :
+        <input type="text" name="code" class="form-control input-sm">
+        <div class="invalid-feedback"></div>
+    </div>
+    <div class="col-md-12">
+        Name :
+        <input type="text" name="name" class="form-control input-sm">
+        <div class="invalid-feedback"></div>
     </div>
 </div>
+@endcomponent

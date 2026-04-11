@@ -18,7 +18,7 @@
             @csrf
 
             <input type="hidden" name="role_id" value="{{ $role->id }}">
-
+{{-- 
             <div class="card-body">
                 <div>
                     <label class="ui-checkbox ui-checkbox-inline">
@@ -181,7 +181,22 @@
                 <div>
                     <button type="submit" class="btn btn-success">Save</button>
                 </div>
-            </div>
+            </div> --}}
         </form>
     </div>
-@endsection
+    <div class="row mt-1">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title">User Permission</h6>
+                </div>
+                <div class="card-body">
+                    <label class="ui-checkbox ui-checkbox-inline">
+                        <input type="checkbox" name="permissions[]" value="Create ticket type">
+                        <span class="input-span"></span>Create user
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection

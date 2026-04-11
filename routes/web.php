@@ -57,11 +57,13 @@ Route::group(['middleware' => 'auth'], function() {
     // Roles
     Route::get('roles','RoleController@index');
     Route::prefix('roles')->group(function() {
+        Route::post("list", "RoleController@list");
         Route::post('store', 'RoleController@store');
+        Route::post('edit/{id}', 'RoleController@edit');
         Route::post('update/{id}', 'RoleController@update');
         Route::post('deactive/{id}', 'RoleController@deactive');
         Route::post('active/{id}', 'RoleController@active');
-        Route::post('store_access','RoleController@storeAccess');
+        // Route::post('store_access','RoleController@storeAccess');
     
         Route::get('access_module/{id}','RoleController@show');
     });

@@ -8,18 +8,18 @@ use Illuminate\Support\Facades\DB;
 class UserServices {
     public function getUsers($request) {
         $columns = ['name', 'email', 'company_id', 'department_id', 'role_id', 'status'];
-            $users = User::with([
-                        "company" => function($q) {
-                            $q->select("name as Company","id");
-                        },
-                        'department' => function($q) {
-                            $q->select("name as Department", "id");
-                        },
-                        'role' => function($q) {
-                            $q->select("name as Role", "id");
-                        }
-                    ])
-                    ->select("name", "email", "company_id", "department_id", "role_id", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"),"id");
+        $users = User::with([
+                    "company" => function($q) {
+                        $q->select("name as Company","id");
+                    },
+                    'department' => function($q) {
+                        $q->select("name as Department", "id");
+                    },
+                    'role' => function($q) {
+                        $q->select("name as Role", "id");
+                    }
+                ])
+                ->select("name", "email", "company_id", "department_id", "role_id", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"),"id");
 
         return HelperClass::dataTable($columns,$users,$request);
     }

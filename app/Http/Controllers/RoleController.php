@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\AccessModule;
 use App\Http\Requests\RoleRequest;
+use App\Module;
 use App\Role;
+use App\Services\role\RoleService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 
@@ -15,15 +17,23 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $roles = Role::get();
+    public $roleServices;
+    public function __construct(RoleService $roleServices) {
+        $this->roleServices = $roleServices;
+    }
 
-        return view('roles.index',
-            array(
-                'roles' => $roles
-            )
-        );
+    public function index() {
+        return view('roles.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $users = $this->roleServices->getRole($request);
+
+            return response()->json($users, 200);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'message' => 'Role list not found'], 500);
+        }
     }
 
     /**
@@ -44,14 +54,14 @@ class RoleController extends Controller
      */
     public function store(RoleRequest $request)
     {
-        $roles = new Role;
-        $roles->name = $request->name;
-        $roles->code = $request->code;
-        $roles->status = 'Active';
-        $roles->save();
+        try {
+            $this->roleServices->storeRole($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return response()->json(['message' => 'Successfully Saved', 'status' => 'success']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['message' => $e->getMessage(), 'status' => 'error']);
+        }
     }
 
     /**
@@ -63,7 +73,7 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::findOrFail($id);
-
+        
         return view('roles.access',
             array(
                 'role' => $role
@@ -79,7 +89,14 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $roles = $this->roleServices->editRole($id);
+
+            return response()->json($roles);
+        } catch (\Throwable $e) {
+
+            return response()->json(['message' => $e->getMessage(), 'status' => 'error']);
+        }
     }
 
     /**
@@ -91,13 +108,14 @@ class RoleController extends Controller
      */
     public function update(RoleRequest $request, $id)
     {
-        $roles = Role::findOrFail($id);
-        $roles->name = $request->name;
-        $roles->code = $request->code;
-        $roles->save();
+        try {
+            $this->roleServices->updateRole($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return response()->json(['message' => 'Successfully Updated', 'status' => 'success']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['message' => $e->getMessage(), 'status' => 'error']);
+        }
     }
 
     /**
@@ -113,22 +131,26 @@ class RoleController extends Controller
 
     public function deactive($id)
     {
-        $roles = Role::findOrFail($id);
-        $roles->status = 'Inactive';
-        $roles->save();
+        try {
+            $this->roleServices->deactivate($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return response()->json(['message' => 'Successfully Deactivated', 'status' => 'success']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['message' => $e->getMessage(), 'status' => 'error']);
+        }
     }
 
     public function active($id)
     {
-        $roles = Role::findOrFail($id);
-        $roles->status = 'Active';
-        $roles->save();
+        try {
+            $this->roleServices->activate($id);
 
-        toastr()->success('Successfully Activated');
-        return back();
+            return response()->json(['message' => 'Successfully Activated', 'status' => 'success']);
+        } catch (\Throwable $e) {
+
+            return response()->json(['message' => $e->getMessage(), 'status' => 'error']);
+        }
     }
 
     public function storeAccess(Request $request)

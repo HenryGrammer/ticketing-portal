@@ -84,3 +84,7 @@ function errorMessage(message) {
         position: 'top-right'
     })
 }
+
+function isDisableButton(buttonId, isDisabled, text) {
+    $("#"+buttonId).prop("disabled", isDisabled).text(text)
+}
