@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 class RoleService {
     public function getRole($request) {
         $columns = ['id', 'code', 'name', 'status'];
-        $users = Role::select("id","code","name", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"));
+        $roles = Role::select("id","code","name", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"));
 
-        return HelperClass::dataTable($columns,$users,$request);
+        return HelperClass::dataTable($columns,$roles,$request);
     }
 
     public function storeRole($request) {

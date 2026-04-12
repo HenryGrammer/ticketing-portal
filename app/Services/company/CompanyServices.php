@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 class CompanyServices {
     public function getCompany($request) {
         $columns = ['id', 'code', 'name', 'status'];
-        $users = Company::select("id","code","name", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"));
+        $companies = Company::select("id","code","name", DB::raw("IF(status = 1, 'Active', 'Inactive') AS status"));
 
-        return HelperClass::dataTable($columns,$users,$request);
+        return HelperClass::dataTable($columns,$companies,$request);
     }
 
     public function storeCompany($request) {
