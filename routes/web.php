@@ -39,7 +39,9 @@ Route::group(['middleware' => 'auth'], function() {
     // Companies
     Route::get('companies','CompanyController@index');
     Route::prefix('companies')->group(function() {
+        Route::post('list', 'CompanyController@list');
         Route::post('store', 'CompanyController@store');
+        Route::post('edit/{id}', 'CompanyController@edit');
         Route::post('update/{id}', 'CompanyController@update');
         Route::post('deactive/{id}', 'CompanyController@deactive');
         Route::post('active/{id}', 'CompanyController@active');

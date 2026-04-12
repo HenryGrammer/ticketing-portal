@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\Helper\HelperClass;
 use App\Http\Requests\CompanyRequest;
+use App\Services\company\CompanyServices;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
@@ -13,15 +15,23 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $companies = Company::get();
+    protected $companyServices;
+    public function __construct(CompanyServices $companyServices) {
+        $this->companyServices = $companyServices;
+    }
 
-        return view('companies.index', 
-            array(
-                'companies' => $companies
-            )
-        );
+    public function index() {
+        return view('companies.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $companies = $this->companyServices->getCompany($request);
+
+            return response()->json($companies, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -42,14 +52,13 @@ class CompanyController extends Controller
      */
     public function store(CompanyRequest $request)
     {
-        $companies = new Company;
-        $companies->code = $request->code;
-        $companies->name = $request->name;
-        $companies->status = 'Active';
-        $companies->save();
+        try {
+            $this->companyServices->storeCompany($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -71,7 +80,14 @@ class CompanyController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $users = $this->companyServices->editCompany($id);
+
+            return response()->json($users);
+        } catch (\Throwable $e) {
+
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -83,13 +99,13 @@ class CompanyController extends Controller
      */
     public function update(CompanyRequest $request, $id)
     {
-        $companies = Company::findOrFail($id);
-        $companies->code = $request->code;
-        $companies->name = $request->name;
-        $companies->save();
+        try {
+            $this->companyServices->updateCompany($request,$id);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return HelperClass::successResponse("Successfully Updated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -103,23 +119,27 @@ class CompanyController extends Controller
         //
     }
 
-    public function active($id)
-    {
-        $companies = Company::findOrFail($id);
-        $companies->status = 'Active';
-        $companies->save();
-
-        toastr()->success('Successfully Activated');
-        return back();
-    }
-
     public function deactive($id)
     {
-        $companies = Company::findOrFail($id);
-        $companies->status = 'Inactive';
-        $companies->save();
+        try {
+            $this->companyServices->deactivate($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return HelperClass::successResponse("Successfully Deactivated");
+        } catch (\Throwable $e) {
+
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function active($id)
+    {
+        try {
+            $this->companyServices->activate($id);
+
+            return HelperClass::successResponse("Successfully Activated");
+        } catch (\Throwable $e) {
+            
+            return HelperClass::errorResponse();
+        }
     }
 }

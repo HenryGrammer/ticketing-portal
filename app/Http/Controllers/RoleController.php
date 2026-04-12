@@ -28,9 +28,9 @@ class RoleController extends Controller
 
     public function list(Request $request) {
         try {
-            $users = $this->roleServices->getRole($request);
+            $roles = $this->roleServices->getRole($request);
 
-            return response()->json($users, 200);
+            return response()->json($roles, 200);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'message' => 'Role list not found'], 500);
         }

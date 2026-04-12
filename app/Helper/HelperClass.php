@@ -81,4 +81,12 @@ class HelperClass {
 
         return $roles;
     }
+
+    public static function successResponse($message) {
+        return response()->json(['status' => 'success', 'message' => $message], 200);
+    }
+
+    public static function errorResponse($errorMessage = "Something went wrong") {
+        return response()->json(['status' => 'success', 'message' => $errorMessage], 200);
+    }
 }
