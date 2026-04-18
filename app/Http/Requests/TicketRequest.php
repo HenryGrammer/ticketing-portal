@@ -24,9 +24,10 @@ class TicketRequest extends FormRequest
     public function rules()
     {
         return [
-            'viber_number' => ['required', 'integer'],
-            'title' => ['required'],
-            'task' => ['required']
+            'viber_number' => ['required', 'numeric'],
+            'title' => ['required', 'string'],
+            'task' => ['required', 'string'],
+            'attachment' => ['required', 'max:2048']
         ];
     }
 

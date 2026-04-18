@@ -30,7 +30,7 @@ class TicketController extends Controller
         return view('tickets.index');
     }
 
-    public function list(Request $request) {
+    public function data(Request $request) {
         try {
             $tickets = $this->tickets->getTicket($request);
 
@@ -62,7 +62,8 @@ class TicketController extends Controller
             $this->tickets->storeTicket($request);
 
             return HelperClass::successResponse("Successfully Saved");
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
+            
             return HelperClass::errorResponse();
         }
     }

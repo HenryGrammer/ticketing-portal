@@ -151,14 +151,16 @@
             },
         ];
 
-        initializeDataTable("#ticketTable", "{{ config('app.url') }}/tickets/list", "POST", columns)
+        initializeDataTable("#ticketTable", "{{ config('app.url') }}/tickets/data", "POST", columns)
 
         $("#addTicketForm").on("submit", function(e) {
             e.preventDefault()
 
-            var formData = $(this).serializeArray()
+            var formData = new FormData($(this)[0])
 
             initializeAjax("POST", "{{ config('app.url') }}/tickets/store", formData, {
+                contentType: false,
+                processData: false,
                 beforeSend: function() {
                     isDisableButton("saveBtn", true, "Saving...")
                 },
@@ -174,7 +176,7 @@
                 },
                 error: function(xhr) {
                     var errors = xhr.responseJSON.errors
-                    displayError("#addTicketForm", errors)
+                    displayError("addTicketForm", errors)
                 }
             })
         })

@@ -76,12 +76,13 @@ Route::group(['middleware' => 'auth'], function() {
 
     // Tickets
     Route::get('tickets','TicketController@index');
-    Route::prefix('tickets')->group(function() {
-        Route::post('list', 'TicketController@list');
-        
+    Route::prefix('tickets')->group(function() {        
         Route::get('assign', 'TicketController@assign');
+        Route::get('list', 'TicketController@list');
         Route::get('details/{id}','TicketController@show');
-        // Route::post('store', 'TicketController@store');
+
+        Route::post('data', 'TicketController@data');
+        Route::post('store', 'TicketController@store');
         // Route::post('update/{id}', 'TicketController@update');
         // Route::post('upload_image','TicketController@uploadImage');
         // Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
