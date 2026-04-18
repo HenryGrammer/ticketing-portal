@@ -51,6 +51,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('departments','DepartmentController@index');
     Route::prefix('departments')->group(function() {
         Route::post('store', 'DepartmentController@store');
+        Route::post('list', 'DepartmentController@list');
+        Route::post('company-list', 'DepartmentController@companyList');
+        Route::post('user-list', 'DepartmentController@userList');
+        Route::post('edit/{id}', 'DepartmentController@edit');
         Route::post('update/{id}', 'DepartmentController@update');
         Route::post('deactive/{id}', 'DepartmentController@deactive');
         Route::post('active/{id}', 'DepartmentController@active');

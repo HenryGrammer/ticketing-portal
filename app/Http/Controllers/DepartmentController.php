@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use App\Department;
+use App\Helper\HelperClass;
 use App\Http\Requests\DepartmentRequest;
+use App\Services\department\DepartmentServices;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -15,19 +17,42 @@ class DepartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $departments = Department::with('user','company')->get();
-        $companies = Company::get();
-        $users = User::where('status','Active')->get();
+    protected $departmentServices;
+    public function __construct(DepartmentServices $departmentServices) {
+        $this->departmentServices = $departmentServices;
+    }
 
-        return view('departments.index',
-            array(
-                'departments' => $departments,
-                'companies' => $companies,
-                'users' => $users
-            )
-        );
+    public function index() {
+        return view('departments.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $departments = $this->departmentServices->getDepartment($request);
+            return response()->json($departments);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function companyList() {
+        try {
+            $companies = $this->departmentServices->companyList();
+
+            return response()->json($companies);
+        } catch (\Throwable $th) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function userList() {
+        try {
+            $users = $this->departmentServices->userList();
+
+            return response()->json($users);
+        } catch (\Throwable $th) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -35,8 +60,7 @@ class DepartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
+    public function create() {
         //
     }
 
@@ -46,18 +70,14 @@ class DepartmentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(DepartmentRequest $request)
-    {
-        $departments = new Department;
-        $departments->company_id = $request->company;
-        $departments->code = $request->code;
-        $departments->name = $request->name;
-        $departments->user_id = $request->user;
-        $departments->status = 'Active';
-        $departments->save();
+    public function store(DepartmentRequest $request) {
+        try {
+            $this->departmentServices->storeDepartment($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -79,7 +99,13 @@ class DepartmentController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $edit_department = $this->departmentServices->editDepartment($id);
+
+            return response()->json($edit_department);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -91,15 +117,13 @@ class DepartmentController extends Controller
      */
     public function update(DepartmentRequest $request, $id)
     {
-        $departments = Department::findOrFail($id);
-        $departments->company_id = $request->company;
-        $departments->code = $request->code;
-        $departments->name = $request->name;
-        $departments->user_id = $request->user;
-        $departments->save();
+        try {
+            $this->departmentServices->updateDepartment($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return HelperClass::successResponse("Successfully Updated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -115,21 +139,23 @@ class DepartmentController extends Controller
 
     public function active($id)
     {
-        $companies = Department::findOrFail($id);
-        $companies->status = 'Active';
-        $companies->save();
+        try {
+            $this->departmentServices->activate($id);
 
-        toastr()->success('Successfully Activated');
-        return back();
+            return HelperClass::successResponse("Successfully Activated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     public function deactive($id)
     {
-        $companies = Department::findOrFail($id);
-        $companies->status = 'Inactive';
-        $companies->save();
+        try {
+            $this->departmentServices->deactivate($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return HelperClass::successResponse("Successfully Deactivated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 }

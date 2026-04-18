@@ -61,7 +61,14 @@ function displayError(form, errors) {
     $.each(errors, function (key, value) {
         let input = $('[name="' + key + '"]');
         input.addClass('is-invalid');
-        input.next('.invalid-feedback').text(value[0]);
+        
+        // Handle Select2
+        if (input.hasClass('select2-hidden-accessible')) {
+            input.next('.select2-container').find('.select2-selection')
+                .addClass('is-invalid');
+        }
+
+        input.nextAll('.invalid-feedback').first().text(value[0]);
     });
 }
 

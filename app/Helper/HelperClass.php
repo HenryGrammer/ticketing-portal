@@ -5,6 +5,7 @@ use App\Company;
 use App\Department;
 use App\Module;
 use App\Role;
+use App\User;
 
 class HelperClass {
 
@@ -76,6 +77,14 @@ class HelperClass {
 
     public static function getActiveRole() {
         $roles = Role::select("name", "code", "status","id")
+                        ->where("status",1)
+                        ->get();
+
+        return $roles;
+    }
+
+    public static function getActiveUsers() {
+        $roles = User::select("name", "id")
                         ->where("status",1)
                         ->get();
 

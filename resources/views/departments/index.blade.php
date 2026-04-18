@@ -33,16 +33,12 @@
                 <h5>Departments</h5>
             </div>
             <div class="card-body">
-                @can('create', App\Department::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add department
                 </button>
-                @endcan
 
-                @include('components.error')
-
-                <table class="table table-bordered table-hover table-sm tables">
+                <table class="table table-bordered table-hover table-sm" id="departmentTable">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -54,50 +50,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($departments as $department)
-                            <tr>
-                                <td>
-                                    @can('edit', App\Department::class)
-                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $department->id }}">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        @if($department->status == "Active")
-                                        <form method="POST" action="{{ url('departments/deactive/'.$department->id) }}" style="display: inline-block;">
-                                            @csrf
-
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="fa fa-ban"></i>
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form method="POST" action="{{ url('departments/active/'.$department->id) }}" style="display: inline-block;">
-                                            @csrf
-
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                        </form>
-                                        @endif
-                                    @endcan
-                                </td>
-                                <td>{{ optional($department->company)->name }}</td>
-                                <td>{{ $department->code }}</td>
-                                <td>{{ $department->name }}</td>
-                                <td>{{ $department->user->name }}</td>
-                                <td>
-                                    @if($department->status == "Active")
-                                    <span class="badge badge-success">
-                                    @elseif($department->status == "Inactive")
-                                    <span class="badge badge-danger">
-                                    @endif
-
-                                    {{ $department->status }}
-                                    </span>
-                                </td>
-                            </tr>
-
-                            @include('departments.edit')
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -106,19 +58,247 @@
 </div>
 
 @include('departments.new')
+@include('departments.edit')
 @endsection
 
 @section('js')
+<script src="{{ asset("js/Helper.js") }}"></script>
 <script>
+    function company() {
+        initializeAjax("POST", "{{ config('app.url') }}/departments/company-list", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                if (response.length > 0) {
+                    response.forEach(res => {
+                        option += `<option value="${res.id}">${res.code+' - '+res.name}</option>`
+                    })
+                }
+
+                $("[name='company']").html(option)
+                $("[name='company']").select2({
+                    allowClear: true
+                })
+            }
+        })
+    }
+    
+    function user() {
+        initializeAjax("POST", "{{ config('app.url') }}/departments/user-list", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                if (response.length > 0) {
+                    response.forEach(res => {
+                        option += `<option value="${res.id}">${res.name}</option>`
+                    })
+                }
+
+                $("[name='user']").html(option)
+                $("[name='user']").select2({
+                    allowClear: true
+                })
+            }
+        })
+    }
+
     $(document).ready(function() {
-        $(".tables").DataTable({
-            ordering: false,
-            pageLength: 15
+        company()
+        user()
+
+        var columns = [
+            {
+                data: "Action",
+                render: function(data, type, row) {
+                    return `
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v mr-2" aria-hidden="true"></i>
+                                Action
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="javascript:void(0)" id="editDropdown" data-id="${row.id}">Edit</a>
+                                ${
+                                    row.status == "Active"
+                                    ?
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="deactivateDropdown" data-id="${row.id}">Deactivate</a>`
+                                    :
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="activateDropdown" data-id="${row.id}">Activate</a>`
+                                } 
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                data: "company",
+                render: function(data, type, row) {
+                    var company = "";
+                    if (row.company) {
+                        company = row.company.name
+                        return company
+                    }
+
+                    return company
+                }
+            },
+            {data: "code"},
+            {data: "name"},
+            {
+                data: "user", 
+                render: function(data, type, row) {
+                    return row.user.name
+                }
+            },
+            {
+                data: "status",
+                render: function(data, type, row) {
+                    let badgeClass = 'bg-success'
+                    if (row.status == "Inactive") {
+                        badgeClass = 'bg-danger'
+                    }
+
+                    return `<span class="badge ${badgeClass}">${row.status}</span>`
+                }
+            },
+        ];
+
+        initializeDataTable("#departmentTable", "{{ config('app.url') }}/departments/list", "POST", columns)
+
+        $("#addDepartmentForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray()
+
+            initializeAjax("POST", "{{ config('app.url') }}/departments/store", formData, {
+                beforeSend: function() {
+                    isDisableButton("saveBtn", true, "Saving...")
+                },
+                success: function(response) {
+                    if (response.status == "success") {
+                        reloadTable("departmentTable")
+                        successMessage(response.message)
+                        $("#new").modal("hide")
+                    }
+                },
+                complete: function() {
+                    isDisableButton("saveBtn", false, "Save")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("addDepartmentForm", errors)
+                }
+            })
+        })
+        
+        $(document).on("click", "#editDropdown", function(e) {
+            e.preventDefault()
+
+            var id = $(this).data("id")
+            $("#edit").modal("show")
+            initializeAjax("POST", "{{ config('app.url') }}/departments/edit/"+id, {}, {
+                success: function(response) {
+                    $("[name='code']").val(response.code)
+                    $("[name='company']").val(response.company_id).trigger("change")
+                    $("[name='user']").val(response.user_id).trigger("change")
+                    $("[name='name']").val(response.name)
+                    $("[name='id']").val(response.id)
+                }
+            })
         })
 
-        $(".select2").select2({
-            allowClear: true
-        });
+        $("#updateDepartmentForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray()
+            var id = $("[name='id']").val()
+            initializeAjax("POST", "{{ config('app.url') }}/departments/update/"+id, formData, {
+                beforeSend: function() {
+                    isDisableButton("updateBtn", true, "Updating...")
+                },
+                success: function(response) {
+                    if (response.status == "success") {
+                        reloadTable("departmentTable")
+                        $("#edit").modal("hide")
+                    }
+                },
+                complete: function() {
+                    isDisableButton("updateBtn", false, "Update")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("updateDepartmentForm", errors)
+                }
+            })
+        })
+
+        $(document).on("click", "#deactivateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Deactivate",
+                message: 'Are you sure you want to deactivate this department?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/departments/deactive/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("departmentTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
+
+        $(document).on("click", "#activateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to activate this company?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/departments/active/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("departmentTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            },
+                            error: function(xhr) {
+                                errorMessage("Something went wrong")
+                                
+                            }
+                        })
+                    }
+                }
+            });
+        })
     })
 </script>
-@endsection
+@endsection  
