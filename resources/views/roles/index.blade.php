@@ -118,6 +118,7 @@
                     if (response.status == "success") {
                         reloadTable("roleTable")
                         $("#new").modal("hide")
+                        successMessage(response.message)
                     }
                 },
                 complete: function() {
@@ -157,6 +158,7 @@
                     if (response.status == "success") {
                         reloadTable("roleTable")
                         $("#edit").modal("hide")
+                        successMessage(response.message)
                     }
                 },
                 complete: function() {
