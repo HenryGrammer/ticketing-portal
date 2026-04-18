@@ -77,18 +77,18 @@ Route::group(['middleware' => 'auth'], function() {
     // Tickets
     Route::get('tickets','TicketController@index');
     Route::prefix('tickets')->group(function() {
-        Route::get('list', 'TicketController@list');
+        Route::post('list', 'TicketController@list');
+        
         Route::get('assign', 'TicketController@assign');
         Route::get('details/{id}','TicketController@show');
-
-        Route::post('store', 'TicketController@store');
-        Route::post('update/{id}', 'TicketController@update');
-        Route::post('upload_image','TicketController@uploadImage');
-        Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
-        Route::post('comment/{id}', 'TicketController@comment');
-        Route::post('get_comment','TicketController@getComment');
-        Route::post('delete_comment/{id}','TicketController@deleteComment');
-        Route::post('close_ticket/{id}','TicketController@closeTicket');
+        // Route::post('store', 'TicketController@store');
+        // Route::post('update/{id}', 'TicketController@update');
+        // Route::post('upload_image','TicketController@uploadImage');
+        // Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
+        // Route::post('comment/{id}', 'TicketController@comment');
+        // Route::post('get_comment','TicketController@getComment');
+        // Route::post('delete_comment/{id}','TicketController@deleteComment');
+        // Route::post('close_ticket/{id}','TicketController@closeTicket');
     });
 
     // Reports

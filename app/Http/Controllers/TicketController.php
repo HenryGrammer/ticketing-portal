@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Helper\HelperClass;
 use App\Http\Requests\TicketRequest;
+use App\Services\ticket_services\TicketService;
 use App\Ticket;
 use App\Ticketing;
 use App\TicketingComment;
@@ -19,15 +21,23 @@ class TicketController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $tickets = Ticket::with('assignTo','createdBy','department')->where('created_by', auth()->user()->id)->get();
-        
-        return view('tickets.index', 
-            array(
-                'tickets' => $tickets
-            )
-        );
+    protected $tickets;
+    public function __construct(TicketService $tickets) {
+        $this->tickets = $tickets;
+    }
+
+    public function index() {
+        return view('tickets.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $tickets = $this->tickets->getTicket($request);
+
+            return response()->json($tickets);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -48,27 +58,13 @@ class TicketController extends Controller
      */
     public function store(TicketRequest $request)
     {
-        // dd($request->all());
-        $tickets = new Ticket();
-        $tickets->viber_number = $request->viber_number;
-        $tickets->department_id = $request->department;
-        $tickets->subject = $request->title;
-        $tickets->task = $request->task;
-        $tickets->status = 'Open';
-        $tickets->created_by = auth()->user()->id;
-        if ($request->hasFile('attachment'))
-        {
-            $file = $request->file('attachment');
-            $filename = time().'-'.$file->getClientOriginalName();
-            $file->move(public_path('attachment'),$filename);
-            $fileName = '/attachment/'.$filename;
+        try {
+            $this->tickets->storeTicket($request);
 
-            $tickets->attachment = $fileName;
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $th) {
+            return HelperClass::errorResponse();
         }
-        $tickets->save();
-
-        toastr()->success('Successfully Saved');
-        return back();
     }
 
     /**
@@ -135,22 +131,6 @@ class TicketController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function list(Request $request)
-    {
-        $tickets = Ticket::with('assignTo','createdBy','department')->get();
-
-        $it_personnels = User::where('department_id', 1)->where('status','Active')->get();
-        $categories = Category::get();
-
-        return view('tickets.list', 
-            array(
-                'tickets' => $tickets,
-                'it_personnels' => $it_personnels,
-                'categories' => $categories
-            )
-        );
     }
 
     public function assign(Request $request)
