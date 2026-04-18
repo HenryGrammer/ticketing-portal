@@ -134,6 +134,20 @@ class TicketController extends Controller
         //
     }
 
+    public function list() {
+        return view("tickets.list");
+    }
+
+    public function listData(Request $request) {
+        try {
+            $tickets = $this->tickets->listData($request);
+
+            return response()->json($tickets);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
     public function assign(Request $request)
     {
         $tickets = Ticket::with('assignTo','createdBy','department')->where('assigned_to', auth()->user()->id)->get();

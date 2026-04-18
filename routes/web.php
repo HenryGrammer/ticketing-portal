@@ -82,6 +82,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('details/{id}','TicketController@show');
 
         Route::post('data', 'TicketController@data');
+        Route::post("list/data", "TicketController@listData");
         Route::post('store', 'TicketController@store');
         // Route::post('update/{id}', 'TicketController@update');
         // Route::post('upload_image','TicketController@uploadImage');
