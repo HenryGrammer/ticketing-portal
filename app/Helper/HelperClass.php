@@ -96,6 +96,6 @@ class HelperClass {
     }
 
     public static function errorResponse($errorMessage = "Something went wrong") {
-        return response()->json(['status' => 'success', 'message' => $errorMessage], 200);
+        return response()->json(['status' => 'error', 'message' => $errorMessage], 200);
     }
 }

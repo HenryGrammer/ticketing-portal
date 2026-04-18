@@ -107,7 +107,9 @@ Route::group(['middleware' => 'auth'], function() {
     // Ticketing Types
     Route::get('ticketing_types','TicketingTypeController@index');
     Route::prefix('ticketing_types')->group(function() {
+        Route::post('list','TicketingTypeController@list');
         Route::post('store','TicketingTypeController@store');
+        Route::post('edit/{id}','TicketingTypeController@edit');
         Route::post('update/{id}','TicketingTypeController@update');
         Route::post('deactive/{id}', 'TicketingTypeController@deactive');
         Route::post('active/{id}', 'TicketingTypeController@active');

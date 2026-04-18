@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\HelperClass;
 use App\Http\Requests\TicketingTypeRequest;
+use App\Services\ticketing_types\TicketingTypeService;
 use App\TicketingType;
 use Illuminate\Http\Request;
 
@@ -13,15 +15,23 @@ class TicketingTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $ticketing_types = TicketingType::get();
+    protected $ticketingType;
+    public function __construct(TicketingTypeService $ticketingType) {
+        $this->ticketingType = $ticketingType;
+    }
 
-        return view('ticketing_types.index',
-            array(
-                'ticketing_types' => $ticketing_types
-            )
-        );
+    public function index() {
+        return view('ticketing_types.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $ticketing_types = $this->ticketingType->getTicketingTypes($request);
+
+            return response()->json($ticketing_types, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -42,13 +52,13 @@ class TicketingTypeController extends Controller
      */
     public function store(TicketingTypeRequest $request)
     {
-        $ticketing_types = new TicketingType;
-        $ticketing_types->name = $request->name;
-        $ticketing_types->status = 'Active';
-        $ticketing_types->save();
+        try {
+            $this->ticketingType->storeTicketingType($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -70,7 +80,13 @@ class TicketingTypeController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $ticketing_types = $this->ticketingType->editTicketingType($id);
+
+            return response()->json($ticketing_types, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -82,13 +98,13 @@ class TicketingTypeController extends Controller
      */
     public function update(TicketingTypeRequest $request, $id)
     {
-        // dd($request->all());
-        $ticketing_types = TicketingType::findOrFail($id);
-        $ticketing_types->name = $request->name;
-        $ticketing_types->save();
+        try {
+            $this->ticketingType->updateTicketingType($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -102,23 +118,23 @@ class TicketingTypeController extends Controller
         //
     }
 
-    public function deactive($id)
-    {
-        $ticketing_types = TicketingType::findOrFail($id);
-        $ticketing_types->status = 'Inactive';
-        $ticketing_types->save();
+    public function deactive($id) {
+        try {
+            $this->ticketingType->deactivate($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return HelperClass::successResponse("Successfully Deactivated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
-    public function active($id)
-    {
-        $ticketing_types = TicketingType::findOrFail($id);
-        $ticketing_types->status = 'Active';
-        $ticketing_types->save();
+    public function active($id) {
+        try {
+            $this->ticketingType->activate($id);
 
-        toastr()->success('Successfully Activated');
-        return back();
+            return HelperClass::successResponse("Successfully Activated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 }

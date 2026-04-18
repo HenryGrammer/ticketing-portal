@@ -103,7 +103,7 @@
                                 <ul class="nav-2-level collapse">
                                     @foreach ($module->submodule as $submodule)
                                     <li>
-                                        <a href="">{{$submodule->name}}</a>
+                                        <a href="{{ $submodule->route_url }}">{{$submodule->name}}</a>
                                     </li>
                                     @endforeach
                                 </ul>

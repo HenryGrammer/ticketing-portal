@@ -33,16 +33,12 @@
                 <h5>Ticketing Types</h5>
             </div>
             <div class="card-body">
-                @can('create', App\Role::class)
                 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#new">
                     <i class="fa fa-plus"></i>
                     Add ticketing type
                 </button>
-                @endcan
 
-                @include('components.error')
-
-                <table class="table table-bordered table-hover table-sm tables">
+                <table class="table table-bordered table-hover table-sm" id="ticketingTypeTable">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -51,47 +47,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($ticketing_types as $key=>$type)
-                            <tr>
-                                <td>
-                                    @can('update', App\TicketingType::class)
-                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#edit{{ $type->id }}">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        @if($type->status == "Active")
-                                        <form method="POST" action="{{ url('ticketing_types/deactive/'.$type->id) }}" style="display: inline-block;">
-                                            @csrf
-
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="fa fa-ban"></i>
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form method="POST" action="{{ url('ticketing_types/active/'.$type->id) }}" style="display: inline-block;">
-                                            @csrf
-
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                        </form>
-                                        @endif
-                                    @endcan
-                                </td>
-                                <td>{{ $type->name }}</td>
-                                <td>
-                                    @if($type->status == "Active")
-                                    <span class="badge badge-success">
-                                    @elseif($type->status == "Inactive")
-                                    <span class="badge badge-danger">
-                                    @endif
-
-                                    {{ $type->status }}
-                                    </span>
-                                </td>
-                            </tr>
-
-                            @include('ticketing_types.edit')
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -100,45 +55,184 @@
 </div>
 
 @include('ticketing_types.new')
+@include('ticketing_types.edit')
 @endsection
 
 @section('js')
+<script src="{{ asset("js/Helper.js") }}"></script>
 <script>
     $(document).ready(function() {
-        $(".tables").DataTable({
-            ordering: false,
-            pageLength: 15
+        var columns = [
+            {
+                data: "Action",
+                render: function(data, type, row) {
+                    return `
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v mr-2" aria-hidden="true"></i>
+                                Action
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="javascript:void(0)" id="editDropdown" data-id="${row.id}">Edit</a>
+                                ${
+                                    row.status == "Active"
+                                    ?
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="deactivateDropdown" data-id="${row.id}">Deactivate</a>`
+                                    :
+                                    `<a class="dropdown-item" href="javascript:void(0)" id="activateDropdown" data-id="${row.id}">Activate</a>`
+                                } 
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {data: "name"},
+            {
+                data: "status",
+                render: function(data, type, row) {
+                    let badgeClass = 'bg-success'
+                    if (row.status == "Inactive") {
+                        badgeClass = 'bg-danger'
+                    }
+
+                    return `<span class="badge ${badgeClass}">${row.status}</span>`
+                }
+            },
+        ];
+
+        initializeDataTable("#ticketingTypeTable", "{{ config('app.url') }}/ticketing_types/list", "POST", columns)
+
+        $("#addTicketingTypeForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray()
+
+            initializeAjax("POST", "{{ config('app.url') }}/ticketing_types/store", formData, {
+                beforeSend: function() {
+                    isDisableButton("saveBtn", true, "Saving...")
+                },
+                success: function(response) {
+                    if (response.status == "success") {
+                        reloadTable("ticketingTypeTable")
+                        $("#new").modal("hide")
+                    }
+                },
+                complete: function() {
+                    isDisableButton("saveBtn", false, "Save")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("addTicketingTypeForm", errors)
+                }
+            })
+        })
+        
+        $(document).on("click", "#editDropdown", function(e) {
+            e.preventDefault()
+
+            var id = $(this).data("id")
+            $("#edit").modal("show")
+            initializeAjax("POST", "{{ config('app.url') }}/ticketing_types/edit/"+id, {}, {
+                success: function(response) {
+                    $("[name='name']").val(response.name)
+                    $("[name='id']").val(response.id)
+                }
+            })
         })
 
-        $(".select2").select2()
+        $("#updateTicketingTypeForm").on("submit", function(e) {
+            e.preventDefault()
 
-        // $("#summernote").summernote({
-        //     height: 150, // Set desired height
-        //     dialogsInBody: true, // Crucial for modal integration
-        //     callbacks: {
-        //         onImageUpload: function(files) {
-        //             uploadImage(files[0])
-        //         }
-        //     }
-        // })
+            var formData = $(this).serializeArray()
+            var id = $("[name='id']").val()
+            initializeAjax("POST", "{{ config('app.url') }}/ticketing_types/update/"+id, formData, {
+                beforeSend: function() {
+                    isDisableButton("updateBtn", true, "Updating...")
+                },
+                success: function(response) {
+                    if (response.status == "success") {
+                        reloadTable("ticketingTypeTable")
+                        $("#edit").modal("hide")
+                    }
+                },
+                complete: function() {
+                    isDisableButton("updateBtn", false, "Update")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("updateTicketingTypeForm", errors)
+                }
+            })
+        })
 
-        // function uploadImage(file) {
-        //     var data = new FormData()
-        //     data.append("file", file)
-        //     data.append("_token", '{{ csrf_token() }}')
+        $(document).on("click", "#deactivateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Deactivate",
+                message: 'Are you sure you want to deactivate this company?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/ticketing_types/deactive/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("ticketingTypeTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
 
-        //     $.ajax({
-        //         url: "{{ url('tickets/upload_image') }}",
-        //         type:"POST",
-        //         cache:false,
-        //         contentType: false,
-        //         processData: false,
-        //         data: data,
-        //         success:function(url) {
-        //             $("#summernote").summernote('insertImage',url)
-        //         }
-        //     })
-        // }
+        $(document).on("click", "#activateDropdown", function() {
+            var id = $(this).data("id")
+            
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to activate this company?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        initializeAjax("POST", "{{ config('app.url') }}/ticketing_types/active/"+id, {}, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    reloadTable("ticketingTypeTable")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            },
+                            error: function(xhr) {
+                                errorMessage("Something went wrong")
+                            }
+                        })
+                    }
+                }
+            });
+        })
     })
 </script>
 @endsection
