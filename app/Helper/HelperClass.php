@@ -5,6 +5,7 @@ use App\Company;
 use App\Department;
 use App\Module;
 use App\Role;
+use App\TicketingType;
 use App\User;
 
 class HelperClass {
@@ -97,5 +98,12 @@ class HelperClass {
 
     public static function errorResponse($errorMessage = "Something went wrong") {
         return response()->json(['status' => 'error', 'message' => $errorMessage], 200);
+    }
+
+    public static function getActiveTicketingType() {
+        $ticketing_types = TicketingType::select("id", "name")
+                                        ->where("status",1)
+                                        ->get();
+        return $ticketing_types;
     }
 }

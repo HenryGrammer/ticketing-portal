@@ -98,8 +98,11 @@ Route::group(['middleware' => 'auth'], function() {
     // Ticketing Comments
     Route::get('ticketing_comments','TicketingCommentController@index');
     Route::prefix('ticketing_comments')->group(function() {
+        Route::post('list','TicketingCommentController@list');
+        Route::post('ticketing-types','TicketingCommentController@ticketingType');
         Route::post('store','TicketingCommentController@store');
         Route::post('update/{id}','TicketingCommentController@update');
+        Route::post('edit/{id}','TicketingCommentController@edit');
         Route::post('deactive/{id}', 'TicketingCommentController@deactive');
         Route::post('active/{id}', 'TicketingCommentController@active');
     });

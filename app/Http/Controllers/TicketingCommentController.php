@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\HelperClass;
 use App\Http\Requests\TicketingCommentRequest;
+use App\Services\ticketing_comments\TicketingCommentService;
 use App\TicketingComment;
 use App\TicketingType;
 use Illuminate\Http\Request;
@@ -14,19 +16,34 @@ class TicketingCommentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $ticketing_comments = TicketingComment::with('ticketing_type')->get();
-        $ticketing_types = TicketingType::where('status','Active')->get();
-        
-        return view('ticketing_comments.index',
-            array(
-                'ticketing_comments' => $ticketing_comments,
-                'ticketing_types' => $ticketing_types
-            )
-        );
+    protected $ticketingComment;
+    public function __construct(TicketingCommentService $ticketingComment) {
+        $this->ticketingComment = $ticketingComment;
     }
 
+    public function index() {
+        return view('ticketing_comments.index');
+    }
+
+    public function list(Request $request) {
+        try {
+            $ticketing_comments = $this->ticketingComment->getTicketingComment($request);
+
+            return response()->json($ticketing_comments, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function ticketingType() {
+        try {
+            $ticketing_types = $this->ticketingComment->ticketingType();
+            
+            return response()->json($ticketing_types, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -45,15 +62,13 @@ class TicketingCommentController extends Controller
      */
     public function store(TicketingCommentRequest $request)
     {
-        // dd($request->all());
-        $ticketing_comments = new TicketingComment;
-        $ticketing_comments->ticketing_type_id = $request->type;
-        $ticketing_comments->information = $request->info;
-        $ticketing_comments->status = 'Active';
-        $ticketing_comments->save();
+        try {
+            $this->ticketingComment->storeTicketingComment($request);
 
-        toastr()->success('Successfully Saved');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -75,7 +90,13 @@ class TicketingCommentController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $ticketing_comment = $this->ticketingComment->editTicketingComment($id);
+
+            return response()->json($ticketing_comment, 200);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -87,13 +108,13 @@ class TicketingCommentController extends Controller
      */
     public function update(TicketingCommentRequest $request, $id)
     {
-        $ticketing_comments = TicketingComment::findOrFail($id);
-        $ticketing_comments->ticketing_type_id = $request->type;
-        $ticketing_comments->information = $request->info;
-        $ticketing_comments->save();
+        try {
+            $this->ticketingComment->updateTicketingComment($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return HelperClass::successResponse("Successfully Updated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**
@@ -109,21 +130,23 @@ class TicketingCommentController extends Controller
 
     public function deactive($id)
     {
-        $ticketing_comments = TicketingComment::findOrFail($id);
-        $ticketing_comments->status = 'Inactive';
-        $ticketing_comments->save();
+        try {
+            $this->ticketingComment->deactive($id);
 
-        toastr()->success('Successfully Deactivated');
-        return back();
+            return HelperClass::successResponse("Successfully Deactivated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     public function active($id)
     {
-        $ticketing_comments = TicketingComment::findOrFail($id);
-        $ticketing_comments->status = 'Active';
-        $ticketing_comments->save();
+        try {
+            $this->ticketingComment->active($id);
 
-        toastr()->success('Successfully Activated');
-        return back();
+            return HelperClass::successResponse("Successfully Activated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 }
