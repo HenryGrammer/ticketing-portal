@@ -74,8 +74,7 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         $ticket = Ticket::with('department','assignTo','createdBy', 'ticketing_thread.user')->findOrFail($id);
 
         return view('tickets.view',
@@ -180,46 +179,58 @@ class TicketController extends Controller
         return back();
     }
 
-    public function comment(Request $request, $id)
-    {
+    public function comment(Request $request) {
+        try {
+            $comments = $this->tickets->getComment($request);
+
+            return response()->json($comments);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function storeComment(Request $request, $id) {
         $request->validate([
-            'comment' => 'required'
+            'comment' => 'required|string'
         ]);
-        
-        if ($request->threadId)
-        {
-            $thread = TicketingThread::findOrFail($request->threadId);
-            $thread->comment = $request->comment;
-            $thread->user_id = auth()->user()->id;
-            $thread->save();
+
+        try {
+            $this->tickets->storeComment($request,$id);
+
+            return HelperClass::successResponse("Successfully Commented");
+        } catch (\Throwable $th) {
+            return HelperClass::errorResponse();
         }
-        else
-        {
-            $thread = new TicketingThread;
-            $thread->ticket_id = $id;
-            $thread->comment = $request->comment;
-            $thread->user_id = auth()->user()->id;
-            $thread->save();
-        }
-        
-        toastr()->success('Successfully Saved');
-        return back();
     }
 
-    public function getComment(Request $request)
-    {
-        $thread = TicketingThread::findOrFail($request->id);
-        
-        return $thread;
+    public function editComment($id) {
+        try {
+            $comments = $this->tickets->editComment($id);
+
+            return response()->json($comments);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+    public function updateComment(Request $request,$id) {
+        try {
+            $this->tickets->updateComment($request,$id);
+
+            return HelperClass::successResponse("Successfully Updated");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
-    public function deleteComment(Request $request, $id)
-    {
-        $thread = TicketingThread::findOrFail($id);
-        $thread->delete();
-        
-        toastr()->success('Successfully Deleted');
-        return back();
+    public function deleteComment($id) {
+        try {
+            $this->tickets->deleteComment($id);
+
+            return HelperClass::successResponse("Successfully Deleted");
+        } catch (\Throwable $th) {
+            
+            return HelperClass::errorResponse();
+        }
     }
 
     public function closeTicket(Request $request,$id)

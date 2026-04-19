@@ -3,6 +3,7 @@ namespace App\Services\ticket_services;
 
 use App\Helper\HelperClass;
 use App\Ticket;
+use App\TicketingThread;
 use Illuminate\Support\Facades\DB;
 
 class TicketService {
@@ -55,5 +56,59 @@ class TicketService {
         $tickets->save();
 
         return $tickets;
+    }
+
+    public function getComment($request) {
+        $comments = TicketingThread::with("user")
+            ->select(
+                "ticket_id", 
+                "comment", 
+                "id", 
+                "user_id",
+                DB::raw("
+                    CASE 
+                        WHEN TIMESTAMPDIFF(SECOND, created_at, NOW()) < 60 THEN 'Just now'
+                        WHEN TIMESTAMPDIFF(MINUTE, created_at, NOW()) < 60 THEN CONCAT(TIMESTAMPDIFF(MINUTE, created_at, NOW()), ' minutes ago')
+                        WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) < 24 THEN CONCAT(TIMESTAMPDIFF(HOUR, created_at, NOW()), ' hours ago')
+                        ELSE CONCAT(TIMESTAMPDIFF(DAY, created_at, NOW()), ' days ago')
+                    END AS createdAt
+                ")
+            )
+            ->where("ticket_id", $request->id)
+            ->get();
+
+        return $comments;
+    }
+
+    public function storeComment($request,$id) {
+        $thread = new TicketingThread;
+        $thread->ticket_id = $id;
+        $thread->comment = $request->comment;
+        $thread->user_id = auth()->user()->id;
+        $thread->save();
+
+        return $thread;
+    }
+
+    public function editComment($id) {
+        $thread = TicketingThread::findOrFail($id);
+
+        return $thread;
+    }
+
+    public function updateComment($request,$id) {
+        $thread = TicketingThread::findOrFail($id);
+        $thread->comment = $request->editComment;
+        $thread->user_id = auth()->user()->id;
+        $thread->save();
+
+        return $thread;
+    }
+
+    public function deleteComment($id) {
+        $thread = TicketingThread::findOrFail($id);
+        $thread->delete();
+        
+        return $thread;
     }
 }

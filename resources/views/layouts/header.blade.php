@@ -22,6 +22,8 @@
     <link href="{{ asset('assets/vendors/bootstrap-markdown/css/bootstrap-markdown.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/morris.js/morris.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/jquery.toast.min.css') }}">
+
+    @yield('css')
 </head>
 
 <body class="fixed-navbar">
