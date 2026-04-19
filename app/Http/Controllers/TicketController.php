@@ -148,15 +148,19 @@ class TicketController extends Controller
         }
     }
 
-    public function assign(Request $request)
-    {
-        $tickets = Ticket::with('assignTo','createdBy','department')->where('assigned_to', auth()->user()->id)->get();
+    public function assign(Request $request) {
+        return view('tickets.assign');
+    }
 
-        return view('tickets.assign', 
-            array(
-                'tickets' => $tickets
-            )
-        );
+    public function assignData(Request $request) {
+        try {
+            $tickets = $this->tickets->assignData($request);
+
+            return response()->json($tickets);
+        } catch (\Throwable $e) {
+            // dd($e->getMessage());
+            return HelperClass::errorResponse();
+        }
     }
 
     public function acknowledgement(Request $request,$id)

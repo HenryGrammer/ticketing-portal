@@ -12,7 +12,7 @@ class TicketService {
 
         $tickets = Ticket::with("assignTo")
             ->select(DB::raw("LPAD(id, 5, '0') as ticket_id"),DB::raw("DATE(created_at) as date_created"),"subject",DB::raw("IFNULL(priority, 'No data') as priority"),"assigned_to","status", "id")
-            ->where("user_id", auth()->id());
+            ->where("created_by", auth()->id());
 
         return HelperClass::dataTable($columns,$tickets,$request);
     }
@@ -26,6 +26,16 @@ class TicketService {
         return HelperClass::dataTable($columns,$tickets,$request);
     }
 
+    public function assignData($request) {
+        $columns = ["id","created_at","subject","priority","assigned_to","status"];
+
+        $tickets = Ticket::with("assignTo")
+            ->select(DB::raw("LPAD(id, 5, '0') as ticket_id"),DB::raw("DATE(created_at) as date_created"),"subject",DB::raw("IFNULL(priority, 'No data') as priority"),"assigned_to","status", "id")
+            ->where("assigned_to", auth()->id());
+
+        return HelperClass::dataTable($columns,$tickets,$request);
+    }
+
     public function storeTicket($request) {
         $tickets = new Ticket();
         $tickets->viber_number = $request->viber_number;
@@ -33,7 +43,6 @@ class TicketService {
         $tickets->subject = $request->title;
         $tickets->task = $request->task;
         $tickets->status = 'Open';
-        $tickets->user_id = auth()->id();
         $tickets->created_by = auth()->user()->id;
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');

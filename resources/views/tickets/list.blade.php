@@ -106,6 +106,14 @@
         ];
 
         initializeDataTable("#ticketTable", "{{ config('app.url') }}/tickets/list/data", "POST", columns)
+
+        $(document).on("click", "#viewDropdown", function(e) {
+            e.preventDefault()
+
+            var id = $(this).data("id")
+            
+            window.location.href = "{{ config('app.url') }}/tickets/details/"+id
+        })
     })
 </script>
 @endsection
