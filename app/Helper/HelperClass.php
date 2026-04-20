@@ -1,6 +1,7 @@
 <?php
 namespace App\Helper;
 
+use App\Category;
 use App\Company;
 use App\Department;
 use App\Module;
@@ -105,5 +106,27 @@ class HelperClass {
                                         ->where("status",1)
                                         ->get();
         return $ticketing_types;
+    }
+
+    public static function getCategory() {
+        $categories = Category::select("id","name")->get();
+
+        return $categories;
+    }
+
+    public static function priority() {
+        $priority = collect(['Low','Medium','High']);
+
+        return $priority;
+    }
+
+    public static function getItPersonnel() {
+        $it_staff_role_id = User::IT_ROLE;
+        $it_personnels = User::select("id","name")
+                            ->where("status",1)
+                            ->whereIn("role_id", $it_staff_role_id)
+                            ->get();
+
+        return $it_personnels;
     }
 }

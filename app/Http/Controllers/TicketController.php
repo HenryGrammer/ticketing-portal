@@ -102,24 +102,50 @@ class TicketController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function itPersonnel() {
+        try {
+            $it_personnels = $this->tickets->itPersonnel();
+
+            return response()->json($it_personnels);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function priority() {
+        try {
+            $priorities = $this->tickets->priority();
+
+            return response()->json($priorities);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function category() {
+        try {
+            $categories = $this->tickets->category();
+
+            return response()->json($categories);
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
+    }
+
+    public function update(Request $request, $id)  {
         $request->validate([
             'assigned_to' => ['required', 'exists:users,id'],
             'priority' => ['required'],
             'category' => ['required', 'exists:categories,id']
         ]);
 
-        $tickets = Ticket::findOrFail($id);
-        $tickets->assigned_to = $request->assigned_to;
-        $tickets->priority = $request->priority;
-        $tickets->category_id = $request->category;
-        $tickets->date_assign = date('Y-m-d');
-        $tickets->assign_by = auth()->user()->id;
-        $tickets->save();
+        try {
+            $this->tickets->assignTicket($request,$id);
 
-        toastr()->success('Successfully Updated');
-        return back();
+            return HelperClass::successResponse("Succesfully Assigned");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 
     /**

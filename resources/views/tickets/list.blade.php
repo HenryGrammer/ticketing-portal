@@ -54,12 +54,71 @@
 </div>
 
 @include('tickets.new')
+@include('tickets.edit')
 @endsection
 
 @section("js")
 <script src="{{ asset("js/Helper.js") }}"></script>
 <script>
+    function itPersonnel() {
+        initializeAjax("POST", "{{ config('app.url') }}/tickets/it-personnel", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                if (response.length > 0) {
+                    response.forEach(res => {
+                        option += `<option value="${res.id}">${res.name}</option>`
+                    })
+                }
+
+                $("[name='assigned_to']").html(option)
+                $("[name='assigned_to']").select2({
+                    allowClear: true
+                })
+            }
+        })
+    }
+
+    function priority() {
+        initializeAjax("POST", "{{ config('app.url') }}/tickets/priority", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                if (response.length > 0) {
+                    response.forEach((res, key) => {
+                        option += `<option value="${key+1}">${res}</option>`
+                    })
+                }
+
+                $("[name='priority']").html(option)
+                $("[name='priority']").select2({
+                    allowClear: true
+                })
+            }
+        })
+    }
+
+    function category() {
+        initializeAjax("POST", "{{ config('app.url') }}/tickets/category", {}, {
+            success: function(response) {
+                var option = "<option></option>"
+                if (response.length > 0) {
+                    response.forEach((res, key) => {
+                        option += `<option value="${res.id}">${res.name}</option>`
+                    })
+                }
+
+                $("[name='category']").html(option)
+                $("[name='category']").select2({
+                    allowClear: true
+                })
+            }
+        })
+    }
+
     $(document).ready(function() {
+        itPersonnel()
+        priority()
+        category()
+
         var columns = [
             {
                 data: "Action",
@@ -72,6 +131,7 @@
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="javascript:void(0)" id="viewDropdown" data-id="${row.id}">View</a>
+                                <a class="dropdown-item" href="javascript:void(0)" id="assignDropdown" data-id="${row.id}">Assign ticket</a>
                             </div>
                         </div>
                     `;
@@ -113,6 +173,39 @@
             var id = $(this).data("id")
             
             window.location.href = "{{ config('app.url') }}/tickets/details/"+id
+        })
+
+        $(document).on("click", "#assignDropdown", function() {
+            var id = $(this).data("id")
+            
+            $("#assign").modal("show")
+            $("[name='ticket_id']").val(id)
+        })
+
+        $("#assignForm").on("submit", function(e) {
+            e.preventDefault()
+
+            var formData = $(this).serializeArray()
+            var id = $("[name='ticket_id']").val()
+            initializeAjax("POST", "{{ config('app.url') }}/tickets/update/"+id, formData, {
+                beforeSend: function() {
+                    isDisableButton("assignBtn", true, "Updating...")
+                },
+                success: function(response) {
+                    if (response.status == "success") {
+                        reloadTable("ticketTable")
+                        successMessage(response.message)
+                        $("#assign").modal("hide")
+                    }
+                },
+                complete: function() {
+                    isDisableButton("assignBtn", false, "Update")
+                },
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors
+                    displayError("assignForm", errors)
+                }
+            })
         })
     })
 </script>

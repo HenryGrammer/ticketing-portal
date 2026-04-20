@@ -22,7 +22,21 @@ class TicketService {
         $columns = ["id","created_at","subject","priority","assigned_to","status"];
 
         $tickets = Ticket::with("assignTo")
-            ->select(DB::raw("LPAD(id, 5, '0') as ticket_id"),DB::raw("DATE(created_at) as date_created"),"subject",DB::raw("IFNULL(priority, 'No data') as priority"),"assigned_to","status", "id");
+            ->select(
+                DB::raw("LPAD(id, 5, '0') as ticket_id"),
+                DB::raw("DATE(created_at) as date_created"),
+                "subject",
+                DB::raw("
+                    CASE
+                        WHEN priority = 1 THEN 'High'
+                        WHEN priority = 2 THEN 'Medium'
+                        WHEN priority = 3 THEN 'Low'
+                    END as priority
+                "),
+                "assigned_to",
+                "status", 
+                "id"
+            );
 
         return HelperClass::dataTable($columns,$tickets,$request);
     }
@@ -31,7 +45,15 @@ class TicketService {
         $columns = ["id","created_at","subject","priority","assigned_to","status"];
 
         $tickets = Ticket::with("assignTo")
-            ->select(DB::raw("LPAD(id, 5, '0') as ticket_id"),DB::raw("DATE(created_at) as date_created"),"subject",DB::raw("IFNULL(priority, 'No data') as priority"),"assigned_to","status", "id")
+            ->select(
+                DB::raw("LPAD(id, 5, '0') as ticket_id"),
+                DB::raw("DATE(created_at) as date_created"),
+                "subject",
+                DB::raw("IFNULL(priority, 'No data') as priority"),
+                "assigned_to",
+                "status", 
+                "id"
+            )
             ->where("assigned_to", auth()->id());
 
         return HelperClass::dataTable($columns,$tickets,$request);
@@ -110,5 +132,29 @@ class TicketService {
         $thread->delete();
         
         return $thread;
+    }
+
+    public function itPersonnel() {
+        return HelperClass::getItPersonnel();
+    }
+
+    public function priority() {
+        return HelperClass::priority();
+    }
+
+    public function category() {
+        return HelperClass::getCategory();
+    }
+
+    public function assignTicket($request,$id) {
+        $tickets = Ticket::findOrFail($id);
+        $tickets->assigned_to = $request->assigned_to;
+        $tickets->priority = $request->priority;
+        $tickets->category_id = $request->category;
+        $tickets->date_assign = date('Y-m-d');
+        $tickets->assign_by = auth()->user()->id;
+        $tickets->save();
+
+        return $tickets;
     }
 }

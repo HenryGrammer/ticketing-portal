@@ -85,14 +85,16 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post("list/data", "TicketController@listData");
         Route::post("assign/data", "TicketController@assignData");
         Route::post('comment', 'TicketController@comment');
+        Route::post('it-personnel', 'TicketController@itPersonnel');
+        Route::post('priority', 'TicketController@priority');
+        Route::post('category', 'TicketController@category');
 
         Route::post('store', 'TicketController@store');
         Route::post('store-comment/{id}', 'TicketController@storeComment');
         Route::post('delete-comment/{id}','TicketController@deleteComment');
         Route::post('edit-comment/{id}','TicketController@editComment');
         Route::post('update-comment/{id}','TicketController@updateComment');
-
-        // Route::post('update/{id}', 'TicketController@update');
+        Route::post('update/{id}', 'TicketController@update');
         // Route::post('upload_image','TicketController@uploadImage');
         // Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
         // Route::post('close_ticket/{id}','TicketController@closeTicket');
