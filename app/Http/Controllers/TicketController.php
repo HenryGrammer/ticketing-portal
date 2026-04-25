@@ -13,6 +13,8 @@ use App\TicketingThread;
 use App\TicketingType;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Helper\Helper;
 
 class TicketController extends Controller
 {
@@ -190,19 +192,17 @@ class TicketController extends Controller
 
     public function acknowledgement(Request $request,$id)
     {
-        // dd($request->all());
-        $ticket = Ticket::findOrFail($id);
-        $ticketing_type = TicketingType::where('name', $request->ticketing_type)->first();
-        $ticketing_comment = TicketingComment::where('ticketing_type_id', $ticketing_type->id)->first();
-        
-        $thread = new TicketingThread;
-        $thread->ticket_id = $ticket->id;
-        $thread->comment = $ticketing_comment->information;
-        $thread->user_id = auth()->user()->id;
-        $thread->save();
-
-        toastr()->success('Successfully Saved');
-        return back();
+        try {
+            DB::beginTransaction();
+            
+            $this->tickets->acknowledgeTicket($request,$id);
+            
+            DB::commit();
+            return HelperClass::successResponse("Successfully Acknowledge");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return HelperClass::errorResponse();
+        }
     }
 
     public function comment(Request $request) {
@@ -259,35 +259,24 @@ class TicketController extends Controller
         }
     }
 
-    public function closeTicket(Request $request,$id)
-    {
-        // dd($request->all(), $id);
-        $request->validate([
-            'proof' => ['required', 'max:2048']
-        ]);
+    public function cancelled(Request $request,$id) {
+        try {
+            $this->tickets->cancelTicket($request,$id);
 
-        $ticket = Ticket::findOrFail($id);
-        if ($request->hasFile('proof'))
-        {
-            $file = $request->file('proof');
-            $name = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('proof'),$name);
-            $ticket->proof = '/proof/'.$name;
+            return HelperClass::successResponse("Successfully Cancelled");
+        } catch (\Throwable $th) {
+            
+            return HelperClass::errorResponse();
         }
-        $ticket->status = 'Closed';
-        $ticket->date_closed = date('Y-m-d');
-        $ticket->save();
+    }
 
-        $ticketing_type = TicketingType::where('name', $request->ticketing_type)->first();
-        $ticketing_comment = TicketingComment::where('ticketing_type_id', $ticketing_type->id)->first();
-        
-        $thread = new TicketingThread;
-        $thread->ticket_id = $ticket->id;
-        $thread->comment = $ticketing_comment->information;
-        $thread->user_id = auth()->user()->id;
-        $thread->save();
+    public function closeTicket(Request $request,$id) {
+        try {
+            $this->tickets->closeTicket($request,$id);
 
-        toastr()->success('Successfully Closed');
-        return back();
+            return HelperClass::successResponse("Successfully Saved");
+        } catch (\Throwable $e) {
+            return HelperClass::errorResponse();
+        }
     }
 }

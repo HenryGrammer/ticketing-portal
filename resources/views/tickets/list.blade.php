@@ -156,8 +156,11 @@
                 data: "status",
                 render: function(data, type, row) {
                     let badgeClass = 'bg-success'
-                    if (row.status == "Inactive") {
+                    if (row.status == "Cancelled" || row.status == "Closed") {
                         badgeClass = 'bg-danger'
+                    }
+                    else if(row.status == "Acknowledge") {
+                        badgeClass = "bg-warning"
                     }
 
                     return `<span class="badge ${badgeClass}">${row.status}</span>`

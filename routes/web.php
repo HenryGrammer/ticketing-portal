@@ -95,9 +95,10 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('edit-comment/{id}','TicketController@editComment');
         Route::post('update-comment/{id}','TicketController@updateComment');
         Route::post('update/{id}', 'TicketController@update');
+        Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
+        Route::post('cancelled/{id}', 'TicketController@cancelled');
         // Route::post('upload_image','TicketController@uploadImage');
-        // Route::post('acknowledgement/{id}', 'TicketController@acknowledgement');
-        // Route::post('close_ticket/{id}','TicketController@closeTicket');
+        Route::post('close_ticket/{id}','TicketController@closeTicket');
     });
 
     // Reports

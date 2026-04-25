@@ -3,6 +3,7 @@ namespace App\Services\ticket_services;
 
 use App\Helper\HelperClass;
 use App\Ticket;
+use App\TicketingComment;
 use App\TicketingThread;
 use Illuminate\Support\Facades\DB;
 
@@ -147,7 +148,7 @@ class TicketService {
     }
 
     public function assignTicket($request,$id) {
-        $tickets = Ticket::findOrFail($id);
+        $tickets = $this->getTicketData($id);
         $tickets->assigned_to = $request->assigned_to;
         $tickets->priority = $request->priority;
         $tickets->category_id = $request->category;
@@ -156,5 +157,56 @@ class TicketService {
         $tickets->save();
 
         return $tickets;
+    }
+
+    public function acknowledgeTicket($request,$id) {
+        $ticket = $this->getTicketData($id);
+        $ticket->status = "Acknowledge";
+        $ticket->save();
+
+        $this->ticketingThreadActivity($request,$id);
+
+        return $ticket;
+    }
+
+    public function getTicketData($id) {
+        $thread = Ticket::findOrFail($id);
+
+        return $thread;
+    }
+
+    public function ticketingComment($ticketingType) {
+        $ticketing_comment = TicketingComment::where('ticketing_type_id', $ticketingType)->first();
+
+        return $ticketing_comment->information;
+    }
+
+    public function cancelTicket($request, $id) {
+        $ticket = $this->getTicketData($id);
+        $ticket->status = "Cancelled";
+        $ticket->save();
+
+        $this->ticketingThreadActivity($request,$id);
+
+        return $ticket;
+    }
+
+    public function ticketingThreadActivity($request,$id) {
+        $thread = new TicketingThread;
+        $thread->ticket_id = $id;
+        $thread->comment = $this->ticketingComment($request->ticketing_type);
+        $thread->user_id = auth()->user()->id;
+        $thread->save();
+    }
+
+    public function closeTicket($request,$id) {
+        $ticket = $this->getTicketData($id);
+        $ticket->status = 'Closed';
+        $ticket->date_closed = date('Y-m-d');
+        $ticket->save();
+
+        $this->ticketingThreadActivity($request,$id);
+
+        return $ticket;
     }
 }

@@ -10,24 +10,38 @@
         <div class="card">
             <div class="card-header">
                 <div style="display: flex; flex-direction:row; justify-content:space-between;">
-                    <h6 class="card-title">View ticket details</h6>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h6 class="card-title">View ticket details - 
+                        </h6>
+                        <div class="badge-container ml-3">
+                            @if($ticket->status == "Acknowledge")
+                                <span class="badge bg-warning">{{$ticket->status}}</span>
+                            @elseif($ticket->status == "Cancelled")
+                                <span class="badge bg-danger">{{$ticket->status}}</span>
+                            @elseif($ticket->status == "Closed")
+                                <span class="badge bg-danger">{{$ticket->status}}</span>
+                            @elseif($ticket->status == "Open")
+                                <span class="badge bg-success">{{$ticket->status}}</span>
+                            @endif
+                        </div>
+                    </div>
 
-                    @if(auth()->user()->role->name != "User" && $ticket->status == "Open")
                     <div>
                         <form method="post" action="{{ url('tickets/acknowledgement/'.$ticket->id) }}" style="display: inline-block;">
                             @csrf
                             <input type="hidden" name="ticketing_type" value="Acknowledgement">
     
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" class="btn btn-info dropdown-toggle {{ $ticket->status == "Closed" || $ticket->status == "Cancelled" ? 'd-none' : 'd-block'}}" data-toggle="dropdown">
                                 <i class="fa fa-ellipsis-v mr-2" aria-hidden="true"></i>
                                 Action
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="javascript:void(0)" id="viewDropdown">View</a>
+                                <a class="dropdown-item" href="javascript:void(0)" id="acknowledgeDropdown" data-id="{{ $ticket->id }}">Acknowledge</a>
+                                <a class="dropdown-item" href="javascript:void(0)" id="closeDropdown" data-id="{{ $ticket->id }}">Closed</a>
+                                <a class="dropdown-item" href="javascript:void(0)" id="cancelDropdown" data-id="{{ $ticket->id }}">Cancelled</a>
                             </div>
                         </form>
                     </div>
-                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -40,8 +54,8 @@
                             <dd class="col-sm-9">{{ $ticket->viber_number }}</dd>
                             <dt class="col-sm-3 text-right">Department :</dt>
                             <dd class="col-sm-9">{{ $ticket->department->name }}</dd>
-                            <dt class="col-sm-3 text-right">Status :</dt>
-                            <dd class="col-sm-9">{{ $ticket->status }}</dd>
+                            {{-- <dt class="col-sm-3 text-right">Status :</dt>
+                            <dd class="col-sm-9">{{ $ticket->status }}</dd> --}}
                             <dt class="col-sm-3 text-right">Priority :</dt>
                             <dd class="col-sm-9">{{ $ticket->priority }}</dd>
                         </dl>
@@ -99,31 +113,6 @@
                             </div>
                             <div class="ibox-body">
                                 <ul class="media-list media-list-divider m-0">
-                                    {{-- <li class="media">
-                                        <a class="media-img" href="javascript:;">
-                                            <img class="img-circle" src="{{ asset('assets/img/admin-avatar.png') }}" width="40">
-                                        </a>
-                                        <div class="media-body">
-                                            <div class="media-heading">{{ $thread->user->name }} <small class="float-right text-muted">{{ $thread->updated_at->diffForHumans() }}</small></div>
-                                            <div class="font-13">{!! nl2br(e(strip_tags($thread->comment))) !!}</div>
-                                            <div style="display: flex; flex-direction:row; column-gap:5px; margin-top:20px;">
-                                                <div>
-                                                    <small><a class="text-primary" onclick="editComment({{ $thread->id }})">Edit</a></small>
-                                                </div>
-                                                <form method="POST" id="deleteForm" action="{{ url('tickets/delete_comment/'.$thread->id) }}">
-                                                    @csrf
-                                                    
-                                                    <small><a class="text-primary deleteComment">Delete</a></small>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </li> --}}
-                                    {{-- @if (count($ticket->ticketing_thread) > 0)
-                                        @foreach ($ticket->ticketing_thread as $thread)
-                                        @endforeach
-                                    @else
-                                        <li>No comments...</li>
-                                    @endif --}}
                                 </ul>
                             </div>
                         </div>
@@ -190,6 +179,12 @@
                 $(".media-list").html(list)
             }
         })
+    }
+
+    function refreshStatus(color, name) {
+        $(".badge-container").html("")
+        var badge = `<span class='badge bg-${color}'>${name}</span>`
+        $(".badge-container").html(badge)
     }
 
     $(document).ready(function() {
@@ -298,6 +293,119 @@
                     isDisableButton("updateBtn", false, "Comment")
                 }
             })
+        })
+
+        $("#acknowledgeDropdown").on("click", function() {
+            var id = $(this).data("id")
+
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to acknowledge this ticket?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        var formData = {
+                            ticketing_type: 1
+                        }
+                        initializeAjax("POST", "{{ config('app.url') }}/tickets/acknowledgement/"+id, formData, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    loadComments()
+                                    refreshStatus("warning", "Acknowledge")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
+
+        $("#cancelDropdown").on("click", function() {
+            var id = $(this).data("id")
+
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to cancel this ticket?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        var formData = {
+                            ticketing_type: 6
+                        }
+                        initializeAjax("POST", "{{ config('app.url') }}/tickets/cancelled/"+id, formData, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    loadComments()
+                                    refreshStatus("danger", "Cancelled")
+                                    $(".dropdown-toggle").removeClass('d-block').addClass("d-none")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        })
+
+        $("#closeDropdown").on("click", function() {
+            var id = $(this).data("id")
+
+            bootbox.confirm({
+                title:"Activate",
+                message: 'Are you sure you want to close this ticket?',
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        var formData = {
+                            ticketing_type: 4
+                        }
+                        initializeAjax("POST", "{{ config('app.url') }}/tickets/close_ticket/"+id, formData, {
+                            success: function(response) {
+                                if(response.status == "success") {
+                                    successMessage(response.message)
+                                    loadComments()
+                                    refreshStatus("danger", "Closed")
+                                    $(".dropdown-toggle").removeClass('d-block').addClass("d-none")
+                                } else {
+                                    errorMessage(response.message)
+                                }
+                            }
+                        })
+                    }
+                }
+            });
         })
     })
 </script>
